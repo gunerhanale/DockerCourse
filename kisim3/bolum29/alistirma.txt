@@ -1,0 +1,101 @@
+1: Öncelikle sistemdeki tüm container, image ve volumeleri görelim. Bunun için ayrı ayrı listeleme komutlarını girelim. Ve ardından temizlik yapmak adına makinenizdeki tüm containerları, imageleri ve volumeleri temizleyelim. Bunun iki yöntemi var. Bakalım siz kolay olanı mı seçeceksiniz.  +
+
+> docker image prune -a
+> docker volume prune
+
+2: centos, alpine, nginx, httpd:alpine, ozgurozturknet/adanzyedocker, ozgurozturknet/hello-app, ozgurozturknet/app1 isimli imajları çalıştığımız sisteme çekelim.  +
+
+> docker image pull centos
+
+3: ozgurozturknet/app1 isimli imajdan bir container yaratalım.  +
+
+> docker container run ozgurozturknet/app1
+
+4: httpd:alpine isimli imajdan detached bir container yaratalım. Yarattığımız container ismini ve id’sini görelim.  +
+
+> docker container run -d httpd:alpine
+> docker ps
+CONTAINER ID        IMAGE               COMMAND              CREATED                  STATUS              PORTS               NAMES
+6b2e72ece3b9        httpd:alpine        "httpd-foreground"   Less than a second ago   Up 7 seconds        80/tcp              vigilant_thompson
+
+5: Yarattığımız bu contaier’ın loglarına bakalım.  +
+
+> docker container logs 6b2e
+
+6: Container’ı durduralım, ardından yeniden çalıştıralım ve son olarak container’ı sistemden kaldıralım.  +
+
+> docker container stop 6b2
+> docker container start 6b2
+> docker container rm -f 6b2
+
+7: ozgurozturknet/adanzyedocker isimli imajdan websunucu adında detached ve “-p 80:80” ile portu publish edilmiş bir container yaratalım. Kendi bilgisayarımızın browserından bu web sitesine erişelim.  +
+
+> docker container run --name websunucu -d -p 80:80 ozgurozturknet/adanzyedocker
+
+
+8: websunucu adlı bu container’ın içerisine bağlanalım. /usr/local/apache2/htdocs klasörünün altına geçelim ve echo “denemedir” >> index.html komutuyla buradaki dosyaya denemedir yazısını ekleyelim. Web tarayıcıya geçerek dosyaya ekleme yapabildiğimizi görmek için refresh edelim. Sonrasında container içerisinden exit ile çıkalım.  + 
+
+> docker container exec -it websunucu sh
+/usr/src/myapp # cd /usr/local/apache2/htdocs
+/usr/local/apache2/htdocs # ls
+index.html
+/usr/local/apache2/htdocs # echo denemedir >> index.html
+/usr/local/apache2/htdocs # cat index.html
+<html><body><h1>A'dan Z'ye Docker Egitimine Hosgeldiniz.</h1></body></html>
+denemedir
+/usr/local/apache2/htdocs # exit
+
+9: websunucu isimli container’ı çalışırken silelim.   +
+
+> docker container rm -f websunucu
+
+10: alpine isimli imajdan bir container yaratalım. Ama varsayılan olarak çalışması gereken uygulama yerine “ls” uygulamasının çalışmasını sağlayalım.   +
+
+> docker container run  alpine ls 
+
+11: “alistirma1” isimli bir volüme yaratalım.  +
+
+> docker volume create alistirma1
+
+12: alpine isimli imajdan “birinci” isimli bir container yaratalım. Bu container’ı interactive modda yaratalım ve bağlanabilelim. Aynı zamanda “alistirma1” isimli volume’u bu containerın “/test” isimli folder’ına mount edelim. Bu folder içerisine geçelim ve “touch abc.txt” komutuyla bir dosya yaratalım daha sonra “echo deneme >> abc.txt” komutuyla bu dosyanın içerisine yazı ekleyelim.  +
+
+> docker container run --name birinci -it -v alistirma1:/test alpine sh
+/ # ls
+bin    dev    etc    home   lib    media  mnt    opt    proc   root   run    sbin   srv    sys    test   tmp    usr    var
+/ # cd test/
+/test # ls
+/test # touch abc.txt
+/test # echo deneme >> abc.txt
+
+13: alpine isimli imajdan “ikinci” isimli bir container yaratalım. Bu container’ı interactive modda yaratalım ve bağlanabilelim. Aynı zamanda “alistirma1” isimli volume’u bu containerın “/test” isimli folder’ına mount edelim. Bu folder içerisinde “ls” komutyla dosyaları listeleyelim ve abc.txt dosyası olduğunu görelim. “cat abc.txt” ile dosyanın içeriğini kontrol edelim.  +
+
+> docker container run --name ikinci -it -v alistirma1:/test alpine sh
+/ # ls
+bin    dev    etc    home   lib    media  mnt    opt    proc   root   run    sbin   srv    sys    test   tmp    usr    var
+/ # cd test/
+/test # ls
+abc.txt
+/test # cat abc.txt
+deneme
+
+14: alpine isimli imajdan “ucuncu” isimli bir container yaratalım. Bu container’ı interactive modda yaratalım ve bağlanabilelim. Aynı zamanda “alistirma1” isimli volume’u bu containerın “/test” isimli folder’ına mount edelim fakat Read Only olarak mount edelim. Bu folder içerisine geçelim ve “touch abc1.txt” komutuyla bir dosya yaratmaya çalışalım. Ve yaratamadığımızı görelim. +
+
+> docker container run --name ucuncu -it -v alistirma1:/test:ro alpine sh
+/ # ls
+bin    dev    etc    home   lib    media  mnt    opt    proc   root   run    sbin   srv    sys    test   tmp    usr    var
+/ # cd test/
+/test # ls
+abc.txt
+/test # touch abc1.txt
+touch: abc1.txt: Read-only file system
+
+15: Bilgisayarımızda bir klasör yaratalım “örneğin c:\deneme” ve bu klasörün içerisinde index.html adlı bir dosya yaratıp bu dosyanın içerisine birkaç yazı ekleyelim.   +
+
+
+16: ozgurozturknet/adanzyedocker isimli imajdan websunucu1 adında detached ve “-p 80:80” ile portu publish edilmiş bir container yaratalım. Bilgisayarımızda yarattığımız klasörü container’ın içerisindeki /usr/local/apache2/htdocs klasörüne mount edelim. Web browser açarak 127.0.0.1’e gidelim ve sitemizi görelim. Daha sonra bilgisayarımızda yarattığımız klasörün içerisindeki index.html dosyasını edit edelim ve yeni yazılar ekleyelim. Web sayfasını refresh ederek bunların geldiğini görelim. +
+
+> docker container run -d -p 80:80 -v C:\deneme:/usr/local/apache2/htdocs ozgurozturknet/adanzyedocker
+
+17: Tüm çalışan container’ları silelim.  +
+
+> docker container prune

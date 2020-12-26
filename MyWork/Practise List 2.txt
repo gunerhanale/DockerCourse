@@ -1,0 +1,243 @@
+1: İlk olarak sistemde bir temizlik yapalım ki alıştırmalarımızla çakışma olmasın. Varsa sistemdeki tüm containerları ve kullanıcı tanımlı bridge networkleri silelim.
+
+> docker ps -a
+
+> docker container prune
+
+> docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+a72ea1d05cd4        bridge              bridge              local
+bc224eb7a822        host                host                local
+8ad1749707e8        none                null                local
+
+2: "alistirma-agi" adında ve 10.10.0.0/16 subnetinde, 10.10.10.0/24 ip-aralığından ip dağıtacak ve gateway olarak da 10.10.10.10 tanımlanacak bir kullanıcı tanımlı bridge network yaratalım. (bu sizin yerel ağınızda kullandığınız bir ağ aralığıysa başka bir cidr kullanabilirsiniz). Bu ağın özelliklerini inspect komutuyla kontrol edin. 
+
+> docker network create --driver=bridge --subnet=10.10.0.0/16 --ip-range=10.10.10.0/24 --gateway=10.10.10.10 alistirma-agi
+bfa7e965071214ea275c0a596bfd54c51f11c78f7fe943b7cbfa787d92244e40
+
+> docker network inspect alistirma-agi
+[
+    {
+        "Name": "alistirma-agi",
+        "Id": "bfa7e965071214ea275c0a596bfd54c51f11c78f7fe943b7cbfa787d92244e40",
+        "Created": "2020-12-24T16:20:47.418244442Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "10.10.0.0/16",
+                    "IPRange": "10.10.10.0/24",
+                    "Gateway": "10.10.10.10"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+
+
+3: nginx imajının 1.16 versiyonundan web1 adından detached bir container yaratın. Bu containerı default bridge networküne değil de alistirma-agi networküne bağlı olarak yaratın. Host'un 8080 tcp portuna gelen isteklerin bu containerın 80 portuna gitmesini sağlayın.
+
+> docker container run --name web1 -d --network alistirma-agi -p 8080:80 nginx:latest
+
+4: Bu sisteme browser üzerinden erişin ve daha sonra bir kaç kez sayfayı refresh edin. Ardından bu container'ın loglarına erişerek az önceki erişimlerinizin loglarını kontrol edin. 
+
+> docker container logs web1
+> docker logs --details web1
+> docker logs -t web1
+2020-12-24T16:27:49.078522983Z /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+2020-12-24T16:27:49.078671285Z /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+2020-12-24T16:27:49.083883329Z /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+2020-12-24T16:27:49.090376450Z 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+2020-12-24T16:27:49.101267745Z 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+2020-12-24T16:27:49.101632645Z /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+2020-12-24T16:27:49.105688280Z /docker-entrypoint.sh: Configuration complete; ready for start up
+2020-12-24T16:34:48.842259070Z 192.168.99.1 - - [24/Dec/2020:16:34:48 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0" "-"
+2020-12-24T16:34:48.878685187Z 2020/12/24 16:34:48 [error] 28#28: *1 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 192.168.99.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "192.168.99.100:8080", referrer: "http://192.168.99.100:8080/"
+2020-12-24T16:34:48.878776044Z 192.168.99.1 - - [24/Dec/2020:16:34:48 +0000] "GET /favicon.ico HTTP/1.1" 404 153 "http://192.168.99.100:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0" "-"
+
+5: Container loglarını follow modunda takip ederken browser'dan bu web sitesinde olmayan bir url'e gitmeye çalışın. Örneğin xyz.html Bunun ürettiği hatayı canlı olarak loglardan takip edin. 
+
+> docker logs -f web1
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+192.168.99.1 - - [24/Dec/2020:16:34:48 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0" "-"
+2020/12/24 16:34:48 [error] 28#28: *1 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 192.168.99.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "192.168.99.100:8080", referrer: "http://192.168.99.100:8080/"
+192.168.99.1 - - [24/Dec/2020:16:34:48 +0000] "GET /favicon.ico HTTP/1.1" 404 153 "http://192.168.99.100:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0" "-"
+192.168.99.1 - - [24/Dec/2020:16:34:53 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0" "-"
+192.168.99.1 - - [24/Dec/2020:16:34:54 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0" "-"
+192.168.99.1 - - [24/Dec/2020:16:34:56 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0" "-"
+2020/12/24 16:35:55 [error] 28#28: *1 open() "/usr/share/nginx/html/xyz.html" failed (2: No such file or directory), client: 192.168.99.1, server: localhost, request: "GET /xyz.html HTTP/1.1", host: "192.168.99.100:8080"
+192.168.99.1 - - [24/Dec/2020:16:35:55 +0000] "GET /xyz.html HTTP/1.1" 404 153 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0" "-"
+
+6: ozgurozturknet/adanzyedocker imajından test1 adından bir container yaratın. -dit ile yaratın sh shellini açın. Bu container default bridge network'e bağlı olsun. 
+
+> docker container run -dit --name test1 ozgurozturknet/adanzyedocker sh
+
+
+7: Bu container'ı "alistirma-agi" networküne de bağlayın.
+
+> docker network connect alistirma-agi test1
+
+
+8: Container'a attach işlemiyle bağlanın ve container içerisinden web1'i pinglemeye çalışın. Container'ı kapamadan çıkın. 
+
+> docker container attach test1
+/usr/src/myapp # ping web1
+PING web1 (10.10.10.0) 56(84) bytes of data.
+64 bytes from web1.alistirma-agi (10.10.10.0): icmp_seq=1 ttl=64 time=0.089 ms
+64 bytes from web1.alistirma-agi (10.10.10.0): icmp_seq=2 ttl=64 time=0.216 ms
+64 bytes from web1.alistirma-agi (10.10.10.0): icmp_seq=3 ttl=64 time=0.156 ms
+64 bytes from web1.alistirma-agi (10.10.10.0): icmp_seq=4 ttl=64 time=0.159 ms
+^C
+--- web1 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 28ms
+rtt min/avg/max/mdev = 0.089/0.155/0.216/0.044 ms
+/usr/src/myapp # read escape sequence
+
+
+9: Bu containerların çalıştığını kontrol edin ve ardından çalışıyor haldeyken bunları silin. 
+
+> docker ps
+CONTAINER ID        IMAGE                          COMMAND                  CREATED             STATUS              PORTS                  NAMES
+46d96c650dd7        ozgurozturknet/adanzyedocker   "sh"                     10 minutes ago      Up 10 minutes       80/tcp                 test1
+73f881d45cf1        nginx:latest                   "/docker-entrypoint."   22 minutes ago      Up 22 minutes       0.0.0.0:8080->80/tcp   web1
+PS C:\Users\ebubekir> docker rm -f 46d 73f
+46d
+73f
+PS C:\Users\ebubekir> docker ps
+CONTAINER ID        IMAGE
+
+
+10: Terminalde eğitim klasörünün altındaki kisim4/bolum43 klasörüne geçin. 
+
+> cd C:\AdanZyeDocker\kisim4\bolum43
+
+
+11: ozgurozturknet/webkayit imajından websrv adinda detached bir container yaratın. "alistirma-agi" networküne bağlı olsun. Maksimum 1 logical cpu kullanacak şekilde kısıtlansın. 80 portunu host üstündeki 80 portuyla publish edin. env.list dosyasının bu containera enviroment variable olarak aktarılmasını sağlayın. 
+
+> docker container run -d --name websrv --network alistirma-agi --cpus="1" -p 80:80 --env-file .\env.list ozgurozturknet/webkayit
+
+
+12: ozgurozturknet/webdb imajından mysqldb adinda detached bir container yaratın. "alistirma-agi" networküne bağlı olsun. Maksimum 1gb memory kullanacak şekilde kısıtlansın. envmysql.list dosyasının bu containera enviroment variable olarak aktarılmasını sağlayın. 
+
+> docker container run -d --name mysqldb --network alistirma-agi --memory=1g --env-file .\envmysql.list ozgurozturknet/webdb
+
+13: mysqldb containerının loglarını kontrol ederek düzgün şekilde başlatılabildiğini teyit edin. 
+
+> docker logs mysqldb
+> docker logs --tail 5 mysqldb
+
+14: Browser'dan websrv container'ının yayınladığı web sitesine bağlanın. Karşınıza çıkan formu doldurup bir tane jpg dosyayı da seçerek add tuşuna basın. Ardından kayitlari gör diyerek işlemin başarılı olduğunu teyit edin. 
+
+http://192.168.99.100/
+
+> docker network inspect alistirma-agi
+[
+    {
+        "Name": "alistirma-agi",
+        "Id": "bfa7e965071214ea275c0a596bfd54c51f11c78f7fe943b7cbfa787d92244e40",
+        "Created": "2020-12-24T16:20:47.418244442Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "10.10.0.0/16",
+                    "IPRange": "10.10.10.0/24",
+                    "Gateway": "10.10.10.10"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "ac7850f02d290370591bc9dc85f4c26ab274e2d28d8a60aad5dd7313ab79aa9a": {
+                "Name": "mysqldb",
+                "EndpointID": "f57a2dc6baa4a94dd31f9eefc142bcdf454fd6235fd1e33a40c10996f4de78e8",
+                "MacAddress": "02:42:0a:0a:0a:01",
+                "IPv4Address": "10.10.10.1/16",
+                "IPv6Address": ""
+            },
+            "b5fccfd28ce3fc956cba53721a6639df78fb6b5edba0d0658235a6e5edc517c6": {
+                "Name": "websrv",
+                "EndpointID": "ccc1cd36a6d30ee0f7898e38b32ec7a592e60414129e1a0b1b3b5547c039c319",
+                "MacAddress": "02:42:0a:0a:0a:00",
+                "IPv4Address": "10.10.10.0/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {},
+        "Labels": {}
+    }
+]
+
+> docker logs --tail 10 websrv
+192.168.99.1 - - [24/Dec/2020:17:14:12 +0000] "GET / HTTP/1.1" 200 530 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+192.168.99.1 - - [24/Dec/2020:17:14:12 +0000] "GET / HTTP/1.1" 200 530 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+192.168.99.1 - - [24/Dec/2020:17:14:16 +0000] "GET / HTTP/1.1" 200 530 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+192.168.99.1 - - [24/Dec/2020:17:14:16 +0000] "GET / HTTP/1.1" 200 530 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+192.168.99.1 - - [24/Dec/2020:17:14:17 +0000] "GET / HTTP/1.1" 200 530 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+192.168.99.1 - - [24/Dec/2020:17:14:17 +0000] "GET / HTTP/1.1" 200 530 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+192.168.99.1 - - [24/Dec/2020:17:16:27 +0000] "POST /add.php HTTP/1.1" 200 427 "http://192.168.99.100/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+192.168.99.1 - - [24/Dec/2020:17:18:50 +0000] "GET /view.php HTTP/1.1" 200 425 "http://192.168.99.100/add.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+[Thu Dec 24 17:19:37.831432 2020] [php7:error] [pid 20] [client 192.168.99.1:51037] script '/var/www/html/a.php' not found or unable to stat
+192.168.99.1 - - [24/Dec/2020:17:19:37 +0000] "GET /a.php HTTP/1.1" 404 493 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+
+
+15: Oluşturduğunuz containerları ve alistirma-agi'ni silin.
+
+> docker ps
+CONTAINER ID        IMAGE                     COMMAND                  CREATED             STATUS              PORTS                 NAMES
+ac7850f02d29        ozgurozturknet/webdb      "docker-entrypoint.s"   14 minutes ago      Up 14 minutes       3306/tcp, 33060/tcp   mysqldb
+b5fccfd28ce3        ozgurozturknet/webkayit   "docker-php-entrypoi"   18 minutes ago      Up 18 minutes       0.0.0.0:80->80/tcp    websrv
+
+> docker rm -f ac b5
+ac
+b5
+
+> docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+
+> docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+bfa7e9650712        alistirma-agi       bridge              local
+a72ea1d05cd4        bridge              bridge              local
+bc224eb7a822        host                host                local
+8ad1749707e8        none                null                local
+
+> docker network rm bfa
+bfa
+
+> docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+a72ea1d05cd4        bridge              bridge              local
+bc224eb7a822        host                host                local
+8ad1749707e8        none                null                local
+
