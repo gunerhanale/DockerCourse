@@ -2705,4 +2705,13 @@ Successfully built 0303df2d19f7
 Successfully tagged gunerhanale/hello-docker:latest
 SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
 
+**we can set env with two different way(-e or --env)**
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker container run -d -p 8095:80 --name hd2 -e KULLANICI="Ebubekir" gunerhanale/hello-docker
+8bdf55a0d6cb3d7977632d0533296aef85187cd6328250c0eb5ad47b418ac59b
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker exec -it hd2 sh
+# echo $HOSTNAME
+8bdf55a0d6cb
+# echo $KULLANICI
+Ebubekir
+
 
