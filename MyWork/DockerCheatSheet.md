@@ -2714,4 +2714,15 @@ PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker exec -it hd2 sh
 # echo $KULLANICI
 Ebubekir
 
+**I uploaded gunerhanale/hello-docker image to dockerhub**
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker image push gunerhanale/hello-docker
+The push refers to repository [docker.io/gunerhanale/hello-docker]
+c24c9007075a: Pushed
+ce406df1a7bb: Pushed
+4eaf0ea085df: Mounted from library/nginx
+2c7498eef94a: Mounted from library/nginx
+7d2b207c2679: Mounted from library/nginx
+5c4e5adc71a8: Mounted from library/nginx
+87c8a1d8f54f: Mounted from library/mysql
+latest: digest: sha256:b5873bc16973c8047791f999c331c8254839d3c2bd0a07c4474ae52cd0f9be61 size: 1782
 
