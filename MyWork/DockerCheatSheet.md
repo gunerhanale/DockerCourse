@@ -2509,4 +2509,63 @@ PS C:\AdanZyeDocker\kisim5\bolum50\nodejs2> docker ps
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                  NAMES
 60af3053a10d        node2               "docker-entrypoint.s"   5 seconds ago       Up 6 seconds        0.0.0.0:80->8080/tcp   agitated_pike
 
+Date of Notes : 27-12-2020 
+
+**Schell notes**
+
+1. '>' : add some notes
+root@5b63847f6133:/# echo $SHELL
+/bin/bash
+root@5b63847f6133:/# echo $SHELL > test.txt
+root@5b63847f6133:/# cat test.txt
+/bin/bash
+root@5b63847f6133:/#
+
+2. '&' Ampersand : work as a background
+root@5b63847f6133:/# ./test.sh &
+
+3. 'jobs' : listed which jobs have been working at the background
+root@5b63847f6133:/# jobs
+[1]+ Running                ./test.sh & 
+
+4. 'grep' : to find sth in text
+root@5b63847f6133:/# cat abc.txt
+123456
+root@5b63847f6133:/# grep 3 abc.txt
+123456
+
+5. '|' pipe : the left side will be an input of the right side
+root@5b63847f6133:/# cat abc.txt | grep 3
+123456
+
+6. ';' semicolon : run more than one command in the same line (command1;command2;command3)
+root@5b63847f6133:/# ls
+abc.txt  boot  etc   lib    lib64   media  opt   root  sbin  sys      test.txt  usr
+bin      dev   home  lib32  libx32  mnt    proc  run   srv   test.sh  tmp       var
+root@5b63847f6133:/# date
+Sun Dec 27 20:38:28 UTC 2020
+root@5b63847f6133:/# ls;date
+abc.txt  boot  etc   lib    lib64   media  opt   root  sbin  sys      test.txt  usr
+bin      dev   home  lib32  libx32  mnt    proc  run   srv   test.sh  tmp       var
+Sun Dec 27 20:38:33 UTC 2020
+
+7. '&&' double ampersand : If the left side of && works, the right side of && will be working!
+root@5b63847f6133:/# cat abc.txt
+123456
+root@5b63847f6133:/# cat def.txt
+cat: def.txt: No such file or directory
+root@5b63847f6133:/# cat abc.txt && echo "the file was found"
+123456
+the file was found
+root@5b63847f6133:/# cat def.txt && echo "the file was found"
+cat: def.txt: No such file or directory
+
+8. '||' double pipe : If the left side of || works, the right side of || will not be working! (Opposite of &&)
+root@5b63847f6133:/# cat abc.txt || echo "test"
+123456
+root@5b63847f6133:/# cat def.txt || echo "test"
+cat: def.txt: No such file or directory
+test
+
+
 
