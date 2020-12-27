@@ -2655,3 +2655,54 @@ CONTAINER ID        IMAGE                      COMMAND                  CREATED 
 21ed49d42d39        gunerhanale/hello-docker   "/docker-entrypoint."   2 minutes ago       Up 2 minutes (healthy)   0.0.0.0:8090->80/tcp   hellodocker2
 bf94821cc66b        gunerhanale/hello-docker   "/docker-entrypoint."   7 minutes ago       Up 7 minutes (healthy)   0.0.0.0:80->80/tcp     hellodocker
 
+**reduced steps as 8 step
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker image build -t gunerhanale/hello-docker .
+Sending build context to Docker daemon  17.92kB
+Step 1/8 : FROM nginx:latest
+ ---> ae2feff98a0c
+Step 2/8 : LABEL maintainer="Ebubekir Gunerhanal @gunerhanale" version="1.0" name="hello-docker"
+ ---> Running in 7093e11602b9
+Removing intermediate container 7093e11602b9
+ ---> 79dacdc0bc31
+Step 3/8 : ENV KULLANICI="Dunyali"
+ ---> Running in 53c822384a38
+Removing intermediate container 53c822384a38
+ ---> 98566e2bfa0c
+Step 4/8 : RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list && apt-get update && apt-get install curl -y
+ ---> Running in 2c0ba5eb1d93
+Ign:1 http://archive.debian.org/debian jessie InRelease
+Get:2 http://security.debian.org jessie/updates InRelease [44.9 kB]
+Get:3 http://archive.debian.org/debian jessie Release [148 kB]
+Get:4 http://security.debian.org jessie/updates/main Sources [366 kB]
+Get:5 http://archive.debian.org/debian jessie Release.gpg [2420 B]
+Get:6 http://security.debian.org jessie/updates/main amd64 Packages [781 kB]
+Get:7 http://archive.debian.org/debian jessie/main Sources [7063 kB]
+Get:8 http://archive.debian.org/debian jessie/main amd64 Packages [6818 kB]
+Fetched 15.2 MB in 19s (811 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+curl is already the newest version (7.64.0-4+deb10u1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Removing intermediate container 2c0ba5eb1d93
+ ---> 2bc19af4ebe6
+Step 5/8 : WORKDIR /usr/share/nginx/html
+ ---> Running in 5a184362a191
+Removing intermediate container 5a184362a191
+ ---> ee892d03b4d9
+Step 6/8 : COPY Hello_docker.html /usr/share/nginx/html
+ ---> 1ccc85615212
+Step 7/8 : HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost/ || exit 1
+ ---> Running in e871f8fc18f5
+Removing intermediate container e871f8fc18f5
+ ---> 29677c1cbdf8
+Step 8/8 : CMD sed -e s/Kullanici/"$KULLANICI"/ Hello_docker.html > index1.html && sed -e s/Hostname/"$HOSTNAME"/ index1.html > index.html ; rm index1.html Hello_docker.html; nginx -g 'daemon off;'
+ ---> Running in 8273cb598090
+Removing intermediate container 8273cb598090
+ ---> 0303df2d19f7
+Successfully built 0303df2d19f7
+Successfully tagged gunerhanale/hello-docker:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+
