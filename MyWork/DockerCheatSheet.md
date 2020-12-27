@@ -2568,4 +2568,90 @@ cat: def.txt: No such file or directory
 test
 
 
+**How to use CMD and HEALTHCHECK commands in the docker file**
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker image build -t gunerhanale/hello-docker .
+Sending build context to Docker daemon  14.34kB
+Step 1/12 : FROM nginx:latest
+ ---> ae2feff98a0c
+Step 2/12 : LABEL maintainer="Ozgur Ozturk @ozgurozturknet"
+ ---> Running in 12dc1f6a535b
+Removing intermediate container 12dc1f6a535b
+ ---> 627be6fa1661
+Step 3/12 : LABEL version="1.0"
+ ---> Running in bef8c6563f38
+Removing intermediate container bef8c6563f38
+ ---> be16768d262d
+Step 4/12 : LABEL name="hello-docker"
+ ---> Running in 4970388d22d8
+Removing intermediate container 4970388d22d8
+ ---> 99ad6a649592
+Step 5/12 : ENV KULLANICI="Dunyali"
+ ---> Running in 4f022d8dd68a
+Removing intermediate container 4f022d8dd68a
+ ---> 346999083b00
+Step 6/12 : RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list
+ ---> Running in 14cec9fd1a7c
+Removing intermediate container 14cec9fd1a7c
+ ---> 6f9ce8c69470
+Step 7/12 : RUN apt-get update
+ ---> Running in 35cec7cc3d6b
+Ign:1 http://archive.debian.org/debian jessie InRelease
+Get:2 http://archive.debian.org/debian jessie Release [148 kB]
+Get:3 http://security.debian.org jessie/updates InRelease [44.9 kB]
+Get:4 http://archive.debian.org/debian jessie Release.gpg [2420 B]
+Get:5 http://archive.debian.org/debian jessie/main Sources [7063 kB]
+Get:6 http://security.debian.org jessie/updates/main Sources [366 kB]
+Get:7 http://security.debian.org jessie/updates/main amd64 Packages [781 kB]
+Get:8 http://archive.debian.org/debian jessie/main amd64 Packages [6818 kB]
+Fetched 15.2 MB in 55s (275 kB/s)
+Reading package lists...
+Removing intermediate container 35cec7cc3d6b
+ ---> bec371f2b15a
+Step 8/12 : RUN apt-get install curl -y
+ ---> Running in 83f1e3610f25
+Reading package lists...
+Building dependency tree...
+Reading state information...
+curl is already the newest version (7.64.0-4+deb10u1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Removing intermediate container 83f1e3610f25
+ ---> aebc88ee3ccc
+Step 9/12 : WORKDIR /usr/share/nginx/html
+ ---> Running in 7e267852471a
+Removing intermediate container 7e267852471a
+ ---> b7edcdc865d9
+Step 10/12 : COPY Hello_docker.html /usr/share/nginx/html
+ ---> 3e15c77f27b0
+Step 11/12 : HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost/ || exit 1
+ ---> Running in 4c5ce4a36502
+Removing intermediate container 4c5ce4a36502
+ ---> c91824e85846
+Step 12/12 : CMD sed -e s/Kullanici/"$KULLANICI"/ Hello_docker.html > index1.html && sed -e s/Hostname/"$HOSTNAME"/ index1.html > index.html ; rm index1.html Hello_docker.html; nginx -g 'daemon off;'
+ ---> Running in 6980a6347dc6
+Removing intermediate container 6980a6347dc6
+ ---> 1e868e9a350e
+Successfully built 1e868e9a350e
+Successfully tagged gunerhanale/hello-docker:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker container run -d --name hellodocker -p 80:80 gunerhanale/hello-docker
+bf94821cc66b79fe3f2897e4410a63665b429de74264bcfffe8461e6a747f394
+
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker ps
+CONTAINER ID        IMAGE                      COMMAND                  CREATED              STATUS                        PORTS                NAMES
+bf94821cc66b        gunerhanale/hello-docker   "/docker-entrypoint."   About a minute ago   Up About a minute (healthy)   0.0.0.0:80->80/tcp   hellodocker
+
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker container run -d --name hellodocker2 -p 8090:80 gunerhanale/hello-docker
+21ed49d42d397eb740d01532dcdb1615798837ff15e317ee5705154945be9d07
+
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker ps
+CONTAINER ID        IMAGE                      COMMAND                  CREATED             STATUS                            PORTS                  NAMES
+21ed49d42d39        gunerhanale/hello-docker   "/docker-entrypoint."   1 second ago        Up 2 seconds (health: starting)   0.0.0.0:8090->80/tcp   hellodocker2
+bf94821cc66b        gunerhanale/hello-docker   "/docker-entrypoint."   5 minutes ago       Up 5 minutes (healthy)            0.0.0.0:80->80/tcp     hellodocker
+
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker ps
+CONTAINER ID        IMAGE                      COMMAND                  CREATED             STATUS                   PORTS                  NAMES
+21ed49d42d39        gunerhanale/hello-docker   "/docker-entrypoint."   2 minutes ago       Up 2 minutes (healthy)   0.0.0.0:8090->80/tcp   hellodocker2
+bf94821cc66b        gunerhanale/hello-docker   "/docker-entrypoint."   7 minutes ago       Up 7 minutes (healthy)   0.0.0.0:80->80/tcp     hellodocker
 
