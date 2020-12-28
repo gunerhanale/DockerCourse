@@ -2714,6 +2714,13 @@ PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker exec -it hd2 sh
 # echo $KULLANICI
 Ebubekir
 
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker ps
+CONTAINER ID        IMAGE                      COMMAND                  CREATED             STATUS                       PORTS                  NAMES
+8bdf55a0d6cb        gunerhanale/hello-docker   "/docker-entrypoint."   24 minutes ago      Up 24 minutes (healthy)      0.0.0.0:8095->80/tcp   hd2
+21ed49d42d39        1e868e9a350e               "/docker-entrypoint."   56 minutes ago      Up 56 minutes (healthy)      0.0.0.0:8090->80/tcp   hellodocker2
+bf94821cc66b        1e868e9a350e               "/docker-entrypoint."   About an hour ago   Up About an hour (healthy)   0.0.0.0:80->80/tcp     hellodocker
+PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker>
+
 **I uploaded gunerhanale/hello-docker image to dockerhub**
 PS C:\AdanZyeDocker\kisim5\bolum52\hello-docker> docker image push gunerhanale/hello-docker
 The push refers to repository [docker.io/gunerhanale/hello-docker]
@@ -2725,4 +2732,59 @@ ce406df1a7bb: Pushed
 5c4e5adc71a8: Mounted from library/nginx
 87c8a1d8f54f: Mounted from library/mysql
 latest: digest: sha256:b5873bc16973c8047791f999c331c8254839d3c2bd0a07c4474ae52cd0f9be61 size: 1782
+
+Date of Notes : 28-12-2020
+
+**What is the different between ADD and COPY**
+
+PS C:\Users\ebubekir> cd C:\AdanZyeDocker\kisim5\bolum54
+
+PS C:\AdanZyeDocker\kisim5\bolum54> ls
+
+
+    Directory: C:\AdanZyeDocker\kisim5\bolum54
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----       21.12.2020     16:48            125 Dockerfile
+-a----       21.12.2020     16:48       12389281 wordpress.tar.gz
+
+
+PS C:\AdanZyeDocker\kisim5\bolum54> code .
+
+PS C:\AdanZyeDocker\kisim5\bolum54> docker image build -t addcopy .
+Sending build context to Docker daemon  12.39MB
+Step 1/5 : FROM alpine:latest
+ ---> 389fef711851
+Step 2/5 : WORKDIR /app1
+ ---> Running in 9d12877ec601
+Removing intermediate container 9d12877ec601
+ ---> 149635389eed
+Step 3/5 : COPY wordpress.tar.gz .
+ ---> 39135a1aae34
+Step 4/5 : ADD wordpress.tar.gz .
+ ---> 4922cd9028f0
+Step 5/5 : ADD https://wordpress.org/latest.tar.gz .
+Downloading [==================================================>]  15.42MB/15.42MB
+
+ ---> 7b406f85e0e2
+Successfully built 7b406f85e0e2
+Successfully tagged addcopy:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+PS C:\AdanZyeDocker\kisim5\bolum54> docker run -it addcopy sh
+/app1 # ls
+latest.tar.gz     wordpress         wordpress.tar.gz
+/app1 # ls -l
+total 27168
+-rw-------    1 root     root      15422346 Dec  8 22:14 latest.tar.gz
+drwxr-xr-x    5 nobody   nobody        4096 Dec 18  2019 wordpress
+-rwxr-xr-x    1 root     root      12389281 Dec 21 15:48 wordpress.tar.gz
+/app1 # cd wordpress/
+/app1/wordpress # ls
+index.php             wp-activate.php       wp-comments-post.php  wp-cron.php           wp-load.php           wp-settings.php       xmlrpc.php
+license.txt           wp-admin              wp-config-sample.php  wp-includes           wp-login.php          wp-signup.php
+readme.html           wp-blog-header.php    wp-content            wp-links-opml.php     wp-mail.php           wp-trackback.php
+
 
