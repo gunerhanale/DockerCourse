@@ -3203,3 +3203,177 @@ Successfully built 50e4138860c7
 Successfully tagged x2:latest
 SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
 
+**How to create image from a container, Not with the Dockerfile**
+**Lets build image using a different way like as create after doing an update or download sth in a container**
+
+PS C:\> docker container run -it --name con1 ubuntu:latest bash
+
+root@764391b692ef:/# apt-get update
+Get:1 http://archive.ubuntu.com/ubuntu focal InRelease [265 kB]
+Get:2 http://security.ubuntu.com/ubuntu focal-security InRelease [109 kB]
+Get:3 http://security.ubuntu.com/ubuntu focal-security/restricted amd64 Packages [103 kB]
+Get:4 http://archive.ubuntu.com/ubuntu focal-updates InRelease [114 kB]
+Get:5 http://security.ubuntu.com/ubuntu focal-security/universe amd64 Packages [645 kB]
+Get:6 http://archive.ubuntu.com/ubuntu focal-backports InRelease [101 kB]
+Get:7 http://archive.ubuntu.com/ubuntu focal/multiverse amd64 Packages [177 kB]
+Get:8 http://archive.ubuntu.com/ubuntu focal/universe amd64 Packages [11.3 MB]
+Get:9 http://security.ubuntu.com/ubuntu focal-security/main amd64 Packages [495 kB]
+Get:10 http://security.ubuntu.com/ubuntu focal-security/multiverse amd64 Packages [1167 B]
+Get:11 http://archive.ubuntu.com/ubuntu focal/main amd64 Packages [1275 kB]
+Get:12 http://archive.ubuntu.com/ubuntu focal/restricted amd64 Packages [33.4 kB]
+Get:13 http://archive.ubuntu.com/ubuntu focal-updates/universe amd64 Packages [885 kB]
+Get:14 http://archive.ubuntu.com/ubuntu focal-updates/main amd64 Packages [885 kB]
+Get:15 http://archive.ubuntu.com/ubuntu focal-updates/restricted amd64 Packages [136 kB]
+Get:16 http://archive.ubuntu.com/ubuntu focal-updates/multiverse amd64 Packages [30.4 kB]
+Get:17 http://archive.ubuntu.com/ubuntu focal-backports/universe amd64 Packages [4250 B]
+Fetched 16.6 MB in 35s (475 kB/s)
+Reading package lists... Done
+
+root@764391b692ef:/# mkdir /temp
+
+root@764391b692ef:/# cd temp/
+
+root@764391b692ef:/temp# apt-get install wget
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following additional packages will be installed:
+...
+0 added, 0 removed; done.
+Running hooks in /etc/ca-certificates/update.d...
+done.
+
+root@764391b692ef:/temp# wget https://wordpress.org/latest.tar.gz
+--2020-12-28 22:10:42--  https://wordpress.org/latest.tar.gz
+Resolving wordpress.org (wordpress.org)... 198.143.164.252
+Connecting to wordpress.org (wordpress.org)|198.143.164.252|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 15422346 (15M) [application/octet-stream]
+Saving to: 'latest.tar.gz'
+
+latest.tar.gz                           100%[============================================================================>]  14.71M   720KB/s    in 22s
+
+2020-12-28 22:11:05 (680 KB/s) - 'latest.tar.gz' saved [15422346/15422346]
+
+root@764391b692ef:/temp# exit
+exit
+
+PS C:\> docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                     PORTS               NAMES
+764391b692ef        ubuntu:latest       "bash"                   4 minutes ago       Exited (0) 8 seconds ago                       con1
+
+**created a image with using 'commit' from container**
+PS C:\> docker commit con1 gunerhanale/con1:latest
+sha256:3ca863429e3973badb171f99b59d34eb4d9c3ccddbbda2f8716903b131d3dcec
+
+PS C:\> docker image ls
+REPOSITORY                         TAG                 IMAGE ID            CREATED             SIZE
+gunerhanale/con1                   latest              3ca863429e39        6 seconds ago       122MB
+
+PS C:\> docker run -it --name con2 gunerhanale/con1:latest bash
+
+root@a90ed46883e9:/# ls
+bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt  opt  proc  root  run  sbin  srv  sys  temp  tmp  usr  var
+
+root@a90ed46883e9:/# cd temp/
+
+root@a90ed46883e9:/temp# ls
+latest.tar.gz
+
+root@a90ed46883e9:/temp# exit
+exit
+
+**How to add some commands while creating a image from container (with '-c' parameter)** 
+PS C:\> docker commit -c 'CMD ["java","uygulama"]' con1 gunerhanale/con1:second
+sha256:a7b9533cfdb3d5c47e67ad8de8725f9ddce993b9d26168eb620d2613f5a46b2a
+
+PS C:\> docker image inspect gunerhanale/con1:second
+[
+    {
+        "Id": "sha256:a7b9533cfdb3d5c47e67ad8de8725f9ddce993b9d26168eb620d2613f5a46b2a",
+        "RepoTags": [
+            "gunerhanale/con1:second"
+        ],
+        "RepoDigests": [],
+        "Parent": "sha256:f643c72bc25212974c16f3348b3a898b1ec1eb13ec1539e10a103e6e217eb2f1",
+        "Comment": "",
+        "Created": "2020-12-28T22:16:40.321541613Z",
+        "Container": "764391b692efe46276fe01699211fc9a160730a4b6be2802a219a0247c8f229b",
+        "ContainerConfig": {
+            "Hostname": "764391b692ef",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": true,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": true,
+            "StdinOnce": true,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "bash"
+            ],
+            "Image": "ubuntu:latest",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "DockerVersion": "19.03.12",
+        "Author": "",
+        "Config": {
+            "Hostname": "764391b692ef",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": true,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": true,
+            "StdinOnce": true,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "/bin/sh",
+                "-c",
+                "[java,uygulama]"
+            ],
+            "Image": "ubuntu:latest",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 122257773,
+        "VirtualSize": 122257773,
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/mnt/sda1/var/lib/docker/overlay2/f3c58764500e7a1651791b6b9da394036c8a034475ad0037f7191800a7b93969/diff:/mnt/sda1/var/lib/docker/overlay2/a9835bac38a9ae0824cd5c9c57134c74684cb21bb86d1a5b1c9f05b3ffeaa4d5/diff:/mnt/sda1/var/lib/docker/overlay2/185a395e953e7964ce23c29844c5ec7cc7fe19dbcf287a93ed504dd2ae1d1070/diff",
+                "MergedDir": "/mnt/sda1/var/lib/docker/overlay2/68223a8c2e1c251aea80fba573b4d87f5ca3bff43eb7fd9c48c06937b512ce4d/merged",
+                "UpperDir": "/mnt/sda1/var/lib/docker/overlay2/68223a8c2e1c251aea80fba573b4d87f5ca3bff43eb7fd9c48c06937b512ce4d/diff",
+                "WorkDir": "/mnt/sda1/var/lib/docker/overlay2/68223a8c2e1c251aea80fba573b4d87f5ca3bff43eb7fd9c48c06937b512ce4d/work"
+            },
+            "Name": "overlay2"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:bacd3af13903e13a43fe87b6944acd1ff21024132aad6e74b4452d984fb1a99a",
+                "sha256:9069f84dbbe96d4c50a656a05bbe6b6892722b0d1116a8f7fd9d274f4e991bf6",
+                "sha256:f6253634dc78da2f2e3bee9c8063593f880dc35d701307f30f65553e0f50c18c",
+                "sha256:e5d84b5cf84b48391f19a5f6c5aed1e810f84f2fe5c0cccc97a588d65784f1e3"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2020-12-28T22:16:40.328908925Z"
+        }
+    }
+]
+
