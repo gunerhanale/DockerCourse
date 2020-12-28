@@ -2864,5 +2864,100 @@ Merhaba arkadaslar. Ben merhaba isimli Java konsol uygulamasym
 
 **If we have two commands at the same time in Dockerfile, the CMD command line will be the input parameter of the ENTRYPOINT.**
 
+PS C:\AdanZyeDocker\kisim5\bolum55> docker image build -t pingimage -f .\Dockerfile.Centos .
+Sending build context to Docker daemon  5.632kB
+Step 1/2 : FROM centos:latest
+ ---> 300e315adb2f
+Step 2/2 : ENTRYPOINT ["ping", "127.0.0.1"]
+ ---> Using cache
+ ---> 9d9915b3f5b2
+Successfully built 9d9915b3f5b2
+Successfully tagged pingimage:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
 
+PS C:\AdanZyeDocker\kisim5\bolum55> docker container run pingimage
+PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.036 ms
+64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.171 ms
+64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.058 ms
+64 bytes from 127.0.0.1: icmp_seq=4 ttl=64 time=0.079 ms
+64 bytes from 127.0.0.1: icmp_seq=5 ttl=64 time=0.082 ms
+
+PS C:\AdanZyeDocker\kisim5\bolum55> docker image build -t pingimage -f .\Dockerfile.Centos .
+Sending build context to Docker daemon  5.632kB
+Step 1/3 : FROM centos:latest
+ ---> 300e315adb2f
+Step 2/3 : ENTRYPOINT ["ping"]
+ ---> Running in b8b10f4be27c
+Removing intermediate container b8b10f4be27c
+ ---> 985e6f09e706
+Step 3/3 : CMD [ "127.0.0.1" ]
+ ---> Running in 9dd95cc8d1a1
+Removing intermediate container 9dd95cc8d1a1
+ ---> b42312776ad9
+Successfully built b42312776ad9
+Successfully tagged pingimage:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+PS C:\AdanZyeDocker\kisim5\bolum55> docker container run pingimage
+PING 127.0.0.1 (127.0.0.1) 56(84) bytes of data.
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.029 ms
+64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.078 ms
+64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.067 ms
+64 bytes from 127.0.0.1: icmp_seq=4 ttl=64 time=0.070 ms
+
+PS C:\AdanZyeDocker\kisim5\bolum55> docker container run pingimage 127.0.0.2
+PING 127.0.0.2 (127.0.0.2) 56(84) bytes of data.
+64 bytes from 127.0.0.2: icmp_seq=1 ttl=64 time=0.030 ms
+64 bytes from 127.0.0.2: icmp_seq=2 ttl=64 time=0.085 ms
+
+**What is the differences between exec and CMD format**
+
+PS C:\AdanZyeDocker\kisim5\bolum56> docker image build -t execshell .
+Sending build context to Docker daemon  2.048kB
+Step 1/3 : FROM centos:latest
+ ---> 300e315adb2f
+Step 2/3 : ENV TEST="Bu bir denemedir"
+ ---> Running in f2d7a08f7274
+Removing intermediate container f2d7a08f7274
+ ---> 2b9a9b8f20d0
+Step 3/3 : CMD [ "echo", "$TEST" ]
+ ---> Running in c4428d6a9ca7
+Removing intermediate container c4428d6a9ca7
+ ---> 4e11c4eaf24e
+Successfully built 4e11c4eaf24e
+Successfully tagged execshell:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+**When we create a container, exec format of CMD will not use ENV because it doesn't open a shell.** 
+**Step 3/3 : CMD [ "echo", "$TEST" ]**
+PS C:\AdanZyeDocker\kisim5\bolum56> docker run --name exec execshell
+$TEST
+
+PS C:\AdanZyeDocker\kisim5\bolum56> docker image build -t execshell .
+Sending build context to Docker daemon  2.048kB
+Step 1/3 : FROM centos:latest
+ ---> 300e315adb2f
+Step 2/3 : ENV TEST="Bu bir denemedir"
+ ---> Using cache
+ ---> 2b9a9b8f20d0
+Step 3/3 : CMD echo $TEST
+ ---> Running in 688b50fd83b8
+Removing intermediate container 688b50fd83b8
+ ---> efbe90be46c4
+Successfully built efbe90be46c4
+Successfully tagged execshell:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+**After The Dockerfile converted with using shell fomrat of CMD, it used ENV form schell**
+**Step 3/3 : CMD echo $TEST**
+
+PS C:\AdanZyeDocker\kisim5\bolum56> docker run --name shell execshell
+Bu bir denemedir
+
+**We can look at that what is the difference about COMMAND**
+PS C:\AdanZyeDocker\kisim5\bolum56> docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
+fcd76d105821        execshell           "/bin/sh -c 'echo $T"    8 minutes ago       Exited (0) 9 minutes ago                        shell
+8a17233c404e        4e11c4eaf24e        "echo $TEST"             13 minutes ago      Exited (0) 13 minutes ago                       exec
 
