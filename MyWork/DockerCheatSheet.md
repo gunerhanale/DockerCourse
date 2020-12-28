@@ -3377,3 +3377,21 @@ PS C:\> docker image inspect gunerhanale/con1:second
     }
 ]
 
+**How to save and load images without using Internet(Dockerhub) because of security**
+
+**saved image in local image folder as con1image.tar**
+PS C:\AdanZyeDocker\kisim5\bolum61\image> docker save gunerhanale/con1:latest -o con1image.tar
+PS C:\AdanZyeDocker\kisim5\bolum61\image> ls
+
+
+    Directory: C:\AdanZyeDocker\kisim5\bolum61\image
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----       28.12.2020     23:56      125017600 con1image.tar
+
+**uploaded image from local file which is con1image.tar**
+PS C:\AdanZyeDocker\kisim5\bolum61\image> docker load -i .\con1image.tar
+Loaded image: gunerhanale/con1:latest
+
