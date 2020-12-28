@@ -2733,6 +2733,7 @@ ce406df1a7bb: Pushed
 87c8a1d8f54f: Mounted from library/mysql
 latest: digest: sha256:b5873bc16973c8047791f999c331c8254839d3c2bd0a07c4474ae52cd0f9be61 size: 1782
 
+------------------------------------------------------------------------------------
 Date of Notes : 28-12-2020
 
 **What is the different between ADD and COPY**
@@ -2786,5 +2787,82 @@ drwxr-xr-x    5 nobody   nobody        4096 Dec 18  2019 wordpress
 index.php             wp-activate.php       wp-comments-post.php  wp-cron.php           wp-load.php           wp-settings.php       xmlrpc.php
 license.txt           wp-admin              wp-config-sample.php  wp-includes           wp-login.php          wp-signup.php
 readme.html           wp-blog-header.php    wp-content            wp-links-opml.php     wp-mail.php           wp-trackback.php
+
+
+**What is the different between ENTRYPOINT and CMD**
+When we create a container, normally CMD command line of the Dockerfile will work. But We can change it when we create a container with giving a new CMD.
+However We can not do that with ENTRYPOINT,  ENTRYPOINT command line will certanly work. We can not give new CMD command while creating new container. 
+
+PS C:\AdanZyeDocker\kisim5\bolum55> ls
+
+
+    Directory: C:\AdanZyeDocker\kisim5\bolum55
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----       22.12.2020     18:07                myapp
+-a----       21.12.2020     16:48            105 Dockerfile
+-a----       21.12.2020     16:48             52 Dockerfile.Centos
+
+
+PS C:\AdanZyeDocker\kisim5\bolum55> code .
+
+PS C:\AdanZyeDocker\kisim5\bolum55> docker image build -t javaimage .
+Sending build context to Docker daemon  5.632kB
+Step 1/4 : FROM mcr.microsoft.com/java/jre:8-zulu-alpine
+8-zulu-alpine: Pulling from java/jre
+801bfaa63ef2: Already exists
+5a35a9018f71: Pull complete
+Digest: sha256:a4e3d9f5fb50e9460ebafe8bbbbb1a7b7710737d4b653f8a4f51a6eddb9b46e1
+Status: Downloaded newer image for mcr.microsoft.com/java/jre:8-zulu-alpine
+ ---> 282970e7f217
+Step 2/4 : WORKDIR /merhaba
+ ---> Running in 0c97d5333cfa
+Removing intermediate container 0c97d5333cfa
+ ---> 49005f4a02b0
+Step 3/4 : COPY /myapp .
+ ---> 35b449b0ff65
+Step 4/4 : CMD [ "java", "merhaba" ]
+ ---> Running in 71b627452a78
+Removing intermediate container 71b627452a78
+ ---> 64cac2a59de7
+Successfully built 64cac2a59de7
+Successfully tagged javaimage:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+PS C:\AdanZyeDocker\kisim5\bolum55> docker run javaimage
+Merhaba arkadaslar. Ben merhaba isimli Java konsol uygulamasym
+
+**We did changed command that we want to run**
+PS C:\AdanZyeDocker\kisim5\bolum55> docker run javaimage ls
+merhaba.class
+merhaba.java
+
+PS C:\AdanZyeDocker\kisim5\bolum55> docker image build -t javaimage .
+Sending build context to Docker daemon  5.632kB
+Step 1/4 : FROM mcr.microsoft.com/java/jre:8-zulu-alpine
+ ---> 282970e7f217
+Step 2/4 : WORKDIR /merhaba
+ ---> Using cache
+ ---> 49005f4a02b0
+Step 3/4 : COPY /myapp .
+ ---> Using cache
+ ---> 35b449b0ff65
+Step 4/4 : ENTRYPOINT [ "java", "merhaba" ]
+ ---> Running in 3d4d55c7d6c7
+Removing intermediate container 3d4d55c7d6c7
+ ---> 0bab9bd5727a
+Successfully built 0bab9bd5727a
+Successfully tagged javaimage:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+**We didn't change command that we want to run**  
+PS C:\AdanZyeDocker\kisim5\bolum55> docker run javaimage ls
+Merhaba arkadaslar. Ben merhaba isimli Java konsol uygulamasym
+
+
+**If we have two commands at the same time in Dockerfile, the CMD command line will be the input parameter of the ENTRYPOINT.**
+
 
 
