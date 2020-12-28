@@ -3395,3 +3395,46 @@ Mode                LastWriteTime         Length Name
 PS C:\AdanZyeDocker\kisim5\bolum61\image> docker load -i .\con1image.tar
 Loaded image: gunerhanale/con1:latest
 
+
+**How to establish a registy server for own local company to pull or push images**
+PS C:\> docker pull registry
+Using default tag: latest
+latest: Pulling from library/registry
+0a6724ff3fcd: Pull complete
+d550a247d74f: Pull complete
+1a938458ca36: Pull complete
+acd758c36fc9: Pull complete
+9af6d68b484a: Pull complete
+Digest: sha256:d5459fcb27aecc752520df4b492b08358a1912fcdfa454f7d2101d4b09991daa
+Status: Downloaded newer image for registry:latest
+docker.io/library/registry:latest
+
+PS C:\> docker run -d -p 5000:5000 --restart always --name registry registry
+c1883aec39d78d757b1c4911047cce8de07c388d9368a4df7f60ed46da275c89
+
+PS C:\> docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
+c1883aec39d7        registry            "/entrypoint.sh /etc"   2 seconds ago       Up 3 seconds        0.0.0.0:5000->5000/tcp   registry
+
+PS C:\> docker pull ozgurozturknet/hello-app:latest
+latest: Pulling from ozgurozturknet/hello-app
+Digest: sha256:a4b3acfb88eafb47a7b5f1266f25ff114d3148186d130dad5d4319086b26c4c2
+Status: Image is up to date for ozgurozturknet/hello-app:latest
+docker.io/ozgurozturknet/hello-app:latest
+
+**How to set a tag to an image**
+PS C:\>  docker image tag ozgurozturknet/hello-app:latest 192.168.99.100:5000/hello-app:latest
+
+PS C:\> docker image ls
+REPOSITORY                         TAG                 IMAGE ID            CREATED             SIZE
+192.168.99.100:5000/hello-app      latest              7feb3d617d2d        8 months ago        5.6MB
+ozgurozturknet/hello-app           latest              7feb3d617d2d        8 months ago        5.6MB
+
+**How to push an image to local registry server**
+PS C:\> docker image push 192.168.99.100:5000/hello-app:latest
+The push refers to repository [192.168.99.100:5000/hello-app]
+Get https://192.168.99.100:5000/v2/: http: server gave HTTP response to HTTPS client
+
+**How to pull an image from local registry server**
+PS C:\> docker pull 192.168.99.100:5000/hello-app:latest
+
