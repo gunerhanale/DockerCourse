@@ -3114,3 +3114,92 @@ javasdk                            latest              5f7eaa774547        2 hou
 Extra information: We can use '--from' sth from another image 
 Exp: COPY --from=nginx:latest /usr/src/uygulama .
 
+**How to use 'Build ARG'**
+
+PS C:\AdanZyeDocker\kisim5\bolum59> docker image build -t app:3.7.6 .
+Sending build context to Docker daemon  2.048kB
+Step 1/4 : FROM ubuntu:latest
+ ---> f643c72bc252
+Step 2/4 : WORKDIR /gecici
+ ---> Running in 262511c46d36
+Removing intermediate container 262511c46d36
+ ---> f84ec4fad7d9
+Step 3/4 : ADD https://www.python.org/ftp/python/3.7.6/Python-3.7.6.tgz .
+Downloading [==================================================>]  23.15MB/23.15MB
+
+ ---> 1141f7f67ef8
+Step 4/4 : CMD ls -al
+ ---> Running in 30432e419d36
+Removing intermediate container 30432e419d36
+ ---> a04e4828df3a
+Successfully built a04e4828df3a
+Successfully tagged app:3.7.6
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+PS C:\AdanZyeDocker\kisim5\bolum59> docker image build -t app:3.8.1 .
+Sending build context to Docker daemon  2.048kB
+Step 1/4 : FROM ubuntu:latest
+ ---> f643c72bc252
+Step 2/4 : WORKDIR /gecici
+ ---> Using cache
+ ---> f84ec4fad7d9
+Step 3/4 : ADD https://www.python.org/ftp/python/3.8.1/Python-3.8.1.tgz .
+Downloading [==================================================>]  23.98MB/23.98MB
+
+ ---> 90989d5f39d5
+Step 4/4 : CMD ls -al
+ ---> Running in 950dd06f92d1
+Removing intermediate container 950dd06f92d1
+ ---> 3db4d6254032
+Successfully built 3db4d6254032
+Successfully tagged app:3.8.1
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+**We added 'VERSION' variable in Dockerdile, and then we used to set a value with using '--build-arg' parameter**
+**In addition to that, we could set a default value in Dockerfile for ARG**
+PS C:\AdanZyeDocker\kisim5\bolum59> docker image build -t x1 --build-arg VERSION=3.7.1 .
+Sending build context to Docker daemon  2.048kB
+Step 1/5 : FROM ubuntu:latest
+ ---> f643c72bc252
+Step 2/5 : WORKDIR /gecici
+ ---> Using cache
+ ---> f84ec4fad7d9
+Step 3/5 : ARG VERSION
+ ---> Running in 7dd6eff7edd6
+Removing intermediate container 7dd6eff7edd6
+ ---> 2f18cb6251ab
+Step 4/5 : ADD https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz .
+Downloading [==================================================>]   22.8MB/22.8MB
+
+ ---> bd0c7fbdd6fa
+Step 5/5 : CMD ls -al
+ ---> Running in 761c60cb9ee8
+Removing intermediate container 761c60cb9ee8
+ ---> f01f69a0386b
+Successfully built f01f69a0386b
+Successfully tagged x1:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+
+PS C:\AdanZyeDocker\kisim5\bolum59> docker image build -t x2 --build-arg VERSION=3.8.1 .
+Sending build context to Docker daemon  2.048kB
+Step 1/5 : FROM ubuntu:latest
+ ---> f643c72bc252
+Step 2/5 : WORKDIR /gecici
+ ---> Using cache
+ ---> f84ec4fad7d9
+Step 3/5 : ARG VERSION
+ ---> Using cache
+ ---> 2f18cb6251ab
+Step 4/5 : ADD https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz .
+Downloading [==================================================>]  23.98MB/23.98MB
+
+ ---> 67a05601ee95
+Step 5/5 : CMD ls -al
+ ---> Running in 2c10d9e6eeed
+Removing intermediate container 2c10d9e6eeed
+ ---> 50e4138860c7
+Successfully built 50e4138860c7
+Successfully tagged x2:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
