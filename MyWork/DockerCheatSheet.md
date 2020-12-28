@@ -2961,3 +2961,156 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 fcd76d105821        execshell           "/bin/sh -c 'echo $T"    8 minutes ago       Exited (0) 9 minutes ago                        shell
 8a17233c404e        4e11c4eaf24e        "echo $TEST"             13 minutes ago      Exited (0) 13 minutes ago                       exec
 
+
+**How to use Multi stage Build**
+**This is bad example to build image with running java app (SDK or JRE)**
+PS C:\AdanZyeDocker\kisim5\bolum57> docker image build -t javasdk .
+Sending build context to Docker daemon  3.584kB
+Step 1/5 : FROM mcr.microsoft.com/java/jdk:8-zulu-alpine
+8-zulu-alpine: Pulling from java/jdk
+801bfaa63ef2: Already exists
+a7d3efedfa62: Pull complete
+Digest: sha256:43c9e408ba84aa4a991931d42479cb22b09c9d08e7c29d8264b64dbf44e0b357
+Status: Downloaded newer image for mcr.microsoft.com/java/jdk:8-zulu-alpine
+ ---> 2c27c5cd2fb4
+Step 2/5 : COPY /source /usr/src/uygulama
+ ---> c9624a243f11
+Step 3/5 : WORKDIR /usr/src/uygulama
+ ---> Running in 80eec64d1018
+Removing intermediate container 80eec64d1018
+ ---> 61d06e3a74cc
+Step 4/5 : RUN javac uygulama.java
+ ---> Running in c944d42184ed
+Removing intermediate container c944d42184ed
+ ---> 3bfb9564b63b
+Step 5/5 : CMD ["java", "uygulama"]
+ ---> Running in 2659c8c7bee1
+Removing intermediate container 2659c8c7bee1
+ ---> 5f7eaa774547
+Successfully built 5f7eaa774547
+Successfully tagged javasdk:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+PS C:\AdanZyeDocker\kisim5\bolum57> docker run javasdk
+Merhaba ben bir java konsol uygulamasiyim
+
+PS C:\AdanZyeDocker\kisim5\bolum57> docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
+aeb7d78a69be        javasdk             "java uygulama"          8 seconds ago       Exited (0) 9 seconds ago                        thirsty_montalcini
+
+**How to copy files from container to host-machine
+PS C:\AdanZyeDocker\kisim5\bolum57> docker cp thirsty_montalcini:/usr/src/uygulama .
+PS C:\AdanZyeDocker\kisim5\bolum57> ls
+
+
+    Directory: C:\AdanZyeDocker\kisim5\bolum57
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----       22.12.2020     18:07                source
+d-----       28.12.2020     20:13                uygulama
+-a----       21.12.2020     16:48            155 Dockerfile
+
+
+PS C:\AdanZyeDocker\kisim5\bolum57> cd .\uygulama\
+PS C:\AdanZyeDocker\kisim5\bolum57\uygulama> ls
+
+
+    Directory: C:\AdanZyeDocker\kisim5\bolum57\uygulama
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----       28.12.2020     20:13            451 uygulama.class
+-a----       21.12.2020     16:48            153 uygulama.java
+
+
+PS C:\AdanZyeDocker\kisim5\bolum57> ls
+
+
+    Directory: C:\AdanZyeDocker\kisim5\bolum57
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----       22.12.2020     18:07                source
+d-----       28.12.2020     20:13                uygulama
+-a----       21.12.2020     16:48            155 Dockerfile
+-a----       28.12.2020     21:04            117 Dockerfile.jre
+
+
+PS C:\AdanZyeDocker\kisim5\bolum57> docker image build -t javajre -f .\Dockerfile.jre .
+Sending build context to Docker daemon  7.168kB
+Step 1/4 : FROM mcr.microsoft.com/java/jre:8-zulu-alpine
+ ---> 282970e7f217
+Step 2/4 : COPY /uygulama /uygulama
+ ---> 83df2a2119ea
+Step 3/4 : WORKDIR /uygulama
+ ---> Running in ef25751d1c0c
+Removing intermediate container ef25751d1c0c
+ ---> 178a711e418f
+Step 4/4 : CMD ["java" , "uygulama"]
+ ---> Running in 088f7616f737
+Removing intermediate container 088f7616f737
+ ---> 7ff216c2c3e6
+Successfully built 7ff216c2c3e6
+Successfully tagged javajre:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+PS C:\AdanZyeDocker\kisim5\bolum57> docker image ls
+REPOSITORY                         TAG                 IMAGE ID            CREATED             SIZE
+javajre                            latest              7ff216c2c3e6        15 seconds ago      144MB
+javasdk                            latest              5f7eaa774547        54 minutes ago      245MB
+
+**How to use Multi-stage Build to create new image with together compile step**
+
+PS C:\AdanZyeDocker\kisim5\bolum58> cat .\Dockerfile
+FROM mcr.microsoft.com/java/jdk:8-zulu-alpine AS compiler
+COPY /source /usr/src/uygulama
+WORKDIR /usr/src/uygulama
+RUN javac uygulama.java
+
+FROM mcr.microsoft.com/java/jre:8-zulu-alpine
+WORKDIR /uygulama
+COPY --from=compiler /usr/src/uygulama .
+CMD [ "java", "uygulama" ]
+
+PS C:\AdanZyeDocker\kisim5\bolum58> docker image build -t javalast .
+Sending build context to Docker daemon  3.584kB
+Step 1/8 : FROM mcr.microsoft.com/java/jdk:8-zulu-alpine AS compiler
+ ---> 2c27c5cd2fb4
+Step 2/8 : COPY /source /usr/src/uygulama
+ ---> Using cache
+ ---> c9624a243f11
+Step 3/8 : WORKDIR /usr/src/uygulama
+ ---> Using cache
+ ---> 61d06e3a74cc
+Step 4/8 : RUN javac uygulama.java
+ ---> Using cache
+ ---> 3bfb9564b63b
+Step 5/8 : FROM mcr.microsoft.com/java/jre:8-zulu-alpine
+ ---> 282970e7f217
+Step 6/8 : WORKDIR /uygulama
+ ---> Running in a7e7f002c82a
+Removing intermediate container a7e7f002c82a
+ ---> 210ed9d706c5
+Step 7/8 : COPY --from=compiler /usr/src/uygulama .
+ ---> 4271c76e2d30
+Step 8/8 : CMD [ "java", "uygulama" ]
+ ---> Running in 9ab4be72dff4
+Removing intermediate container 9ab4be72dff4
+ ---> 95b24806ef40
+Successfully built 95b24806ef40
+Successfully tagged javalast:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+PS C:\AdanZyeDocker\kisim5\bolum58> docker image ls
+REPOSITORY                         TAG                 IMAGE ID            CREATED              SIZE
+javalast                           latest              95b24806ef40        About a minute ago   144MB
+javajre                            latest              7ff216c2c3e6        About an hour ago    144MB
+javasdk                            latest              5f7eaa774547        2 hours ago          245MB
+
+Extra information: We can use '--from' sth from another image 
+Exp: COPY --from=nginx:latest /usr/src/uygulama .
+
