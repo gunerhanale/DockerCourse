@@ -3441,3 +3441,413 @@ PS C:\> docker pull 192.168.99.100:5000/hello-app:latest
 --------------------------------------------------------------------------------
 Date of Notes : 29-12-2020
 
+* ***Docker Compose***
+**It provides us to describe as yaml format for multiple container system.**
+
+PS C:\> docker-compose --version
+docker-compose version 1.24.1, build 4667896b
+
+PS C:\> cd .\AdanZyeDocker\kisim6\bolum65\
+PS C:\AdanZyeDocker\kisim6\bolum65> ls
+
+
+    Directory: C:\AdanZyeDocker\kisim6\bolum65
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----       21.12.2020     16:48            603 docker-compose.yml
+
+
+PS C:\AdanZyeDocker\kisim6\bolum65> code .
+
+PS C:\AdanZyeDocker\kisim6\bolum65> docker-compose up -d
+Creating network "bolum65_webnet" with driver "bridge"
+Pulling mysqldb (ozgurozturknet/webdb:)...
+latest: Pulling from ozgurozturknet/webdb
+804555ee0376: Pull complete
+c53bab458734: Pull complete
+ca9d72777f90: Pull complete
+2d7aad6cb96e: Pull complete
+8d6ca35c7908: Pull complete
+6ddae009e760: Pull complete
+327ae67bbe7b: Pull complete
+31f1f8385b27: Pull complete
+a5a3ad97e819: Pull complete
+48bede7828ac: Pull complete
+380afa2e6973: Pull complete
+f5b0fbeeef97: Pull complete
+Digest: sha256:7f4395879908dbd63fff2696c45b04e6d0d06b21978178bef069e1db75795f81
+Status: Downloaded newer image for ozgurozturknet/webdb:latest
+Pulling websrv (ozgurozturknet/webkayit:)...
+latest: Pulling from ozgurozturknet/webkayit
+8ec398bc0356: Pull complete
+85cf4fc86478: Pull complete
+970dadf4ccb6: Pull complete
+8c04561117a4: Pull complete
+d6b7434b63a2: Pull complete
+83d8859e9744: Pull complete
+9c3d824d0ad5: Pull complete
+9e316fd5b3b3: Pull complete
+578b40496c37: Pull complete
+814ae7711d3c: Pull complete
+4896fed78b6b: Pull complete
+e74d71e9611d: Pull complete
+46017765526c: Pull complete
+280386098458: Pull complete
+1433594449f4: Pull complete
+21a3ca16847f: Pull complete
+cabc7e54115f: Pull complete
+267dd10c80bb: Pull complete
+a725e4aedc93: Pull complete
+Digest: sha256:8816eb13e7f175d6ee80244f4a22eba544a5fbcbba29c8e82db1b79634521a00
+Status: Downloaded newer image for ozgurozturknet/webkayit:latest
+Creating bolum65_mysqldb_1 ... done
+Creating bolum65_websrv_1  ... done
+
+PS C:\AdanZyeDocker\kisim6\bolum65> docker ps
+CONTAINER ID        IMAGE                     COMMAND                  CREATED             STATUS              PORTS                 NAMES
+0913d726dd16        ozgurozturknet/webkayit   "docker-php-entrypoi"   58 minutes ago      Up 58 minutes       0.0.0.0:80->80/tcp    bolum65_websrv_1
+e29c7e59f838        ozgurozturknet/webdb      "docker-entrypoint.s"   58 minutes ago      Up 58 minutes       3306/tcp, 33060/tcp   bolum65_mysqldb_1
+
+PS C:\AdanZyeDocker\kisim6\bolum65> docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+52873de2c6d4        bolum65_webnet      bridge              local
+27a007c939a4        bridge              bridge              local
+bc224eb7a822        host                host                local
+9e453215f63e        myBridge            bridge              local
+8ad1749707e8        none                null                local
+
+PS C:\AdanZyeDocker\kisim6\bolum65> docker-compose down
+Stopping bolum65_websrv_1  ... done
+Stopping bolum65_mysqldb_1 ... done
+Removing bolum65_websrv_1  ... done
+Removing bolum65_mysqldb_1 ... done
+Removing network bolum65_webnet
+_____
+
+PS C:\AdanZyeDocker\kisim6\bolum66> ls
+
+
+    Directory: C:\AdanZyeDocker\kisim6\bolum66
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----       21.12.2020     16:48            603 docker-compose.yml
+
+
+PS C:\AdanZyeDocker\kisim6\bolum66> cat .\docker-compose.yml
+version: '3.7'
+
+services:
+   mysqldb:
+     image: ozgurozturknet/webdb
+     environment:
+      MYSQL_DATABASE: proje
+      MYSQL_USER: projemaster
+      MYSQL_PASSWORD: master1234
+      MYSQL_ROOT_PASSWORD: master1234
+     networks:
+      - webnet
+
+   websrv:
+     depends_on:
+       - mysqldb
+     image: ozgurozturknet/webkayit
+     ports:
+       - "80:80"
+     restart: always
+     networks:
+       - webnet
+     environment:
+       DB_SERVER: mysqldb
+       DB_USERNAME: projemaster
+       DB_PASS: master1234
+       DB_NAME: proje
+networks:
+  webnet:
+    driver: bridge
+
+PS C:\AdanZyeDocker\kisim6\bolum66> docker-compose up
+Creating network "bolum66_webnet" with driver "bridge"
+Creating bolum66_mysqldb_1 ... done
+Creating bolum66_websrv_1  ... done
+Attaching to bolum66_mysqldb_1, bolum66_websrv_1
+mysqldb_1  | 2020-12-29 22:29:14+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 5.7.28-1debian9 started.
+mysqldb_1  | 2020-12-29 22:29:14+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+mysqldb_1  | 2020-12-29 22:29:14+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 5.7.28-1debian9 started.
+mysqldb_1  | 2020-12-29 22:29:14+00:00 [Note] [Entrypoint]: Initializing database files
+mysqldb_1  | 2020-12-29T22:29:14.846124Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation for more details).
+websrv_1   | AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.21.0.3. Set the 'ServerName' directive globally to suppress this message
+websrv_1   | AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.21.0.3. Set the 'ServerName' directive globally to suppress this message
+websrv_1   | [Tue Dec 29 22:29:15.540907 2020] [mpm_prefork:notice] [pid 1] AH00163: Apache/2.4.38 (Debian) PHP/7.3.13 configured -- resuming normal operations
+mysqldb_1  | 2020-12-29T22:29:15.456091Z 0 [Warning] InnoDB: New log files created, LSN=45790
+mysqldb_1  | 2020-12-29T22:29:15.550289Z 0 [Warning] InnoDB: Creating foreign key constraint system tables.
+mysqldb_1  | 2020-12-29T22:29:15.610131Z 0 [Warning] No existing UUID has been found, so we assume that this is the first time that this server has been started. Generating a new UUID: 4888c71d-4a25-11eb-9259-0242ac150002.
+mysqldb_1  | 2020-12-29T22:29:15.612237Z 0 [Warning] Gtid table is not ready to be used. Table 'mysql.gtid_executed' cannot be opened.
+mysqldb_1  | 2020-12-29T22:29:16.294613Z 0 [Warning] CA certificate ca.pem is self signed.
+mysqldb_1  | 2020-12-29T22:29:16.900402Z 1 [Warning] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
+mysqldb_1  | 2020-12-29 22:29:19+00:00 [Note] [Entrypoint]: Database files initialized
+mysqldb_1  | 2020-12-29 22:29:19+00:00 [Note] [Entrypoint]: Starting temporary server
+mysqldb_1  | 2020-12-29 22:29:19+00:00 [Note] [Entrypoint]: Waiting for server startup
+mysqldb_1  | 2020-12-29T22:29:19.940407Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation for more details).
+mysqldb_1  | 2020-12-29T22:29:19.951887Z 0 [Note] mysqld (mysqld 5.7.28) starting as process 78 ...
+mysqldb_1  | 2020-12-29T22:29:19.973072Z 0 [Note] InnoDB: PUNCH HOLE support available
+mysqldb_1  | 2020-12-29T22:29:19.974381Z 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+mysqldb_1  | 2020-12-29T22:29:19.975089Z 0 [Note] InnoDB: Uses event mutexes
+mysqldb_1  | 2020-12-29T22:29:19.977265Z 0 [Note] InnoDB: GCC builtin __atomic_thread_fence() is used for memory barrier
+mysqldb_1  | 2020-12-29T22:29:19.978432Z 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+mysqldb_1  | 2020-12-29T22:29:19.979954Z 0 [Note] InnoDB: Using Linux native AIO
+mysqldb_1  | 2020-12-29T22:29:19.982168Z 0 [Note] InnoDB: Number of pools: 1
+mysqldb_1  | 2020-12-29T22:29:19.991319Z 0 [Note] InnoDB: Using CPU crc32 instructions
+mysqldb_1  | 2020-12-29T22:29:20.017566Z 0 [Note] InnoDB: Initializing buffer pool, total size = 128M, instances = 1, chunk size = 128M
+mysqldb_1  | 2020-12-29T22:29:20.048890Z 0 [Note] InnoDB: Completed initialization of buffer pool
+mysqldb_1  | 2020-12-29T22:29:20.060727Z 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+mysqldb_1  | 2020-12-29T22:29:20.078021Z 0 [Note] InnoDB: Highest supported file format is Barracuda.
+mysqldb_1  | 2020-12-29T22:29:20.108605Z 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+mysqldb_1  | 2020-12-29T22:29:20.109450Z 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+mysqldb_1  | 2020-12-29T22:29:20.159008Z 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+mysqldb_1  | 2020-12-29T22:29:20.160742Z 0 [Note] InnoDB: 96 redo rollback segment(s) found. 96 redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-29T22:29:20.161983Z 0 [Note] InnoDB: 32 non-redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-29T22:29:20.168102Z 0 [Note] InnoDB: Waiting for purge to start
+mysqldb_1  | 2020-12-29T22:29:20.223757Z 0 [Note] InnoDB: 5.7.28 started; log sequence number 2628227
+mysqldb_1  | 2020-12-29T22:29:20.224630Z 0 [Note] Plugin 'FEDERATED' is disabled.
+mysqldb_1  | 2020-12-29T22:29:20.230641Z 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+mysqldb_1  | 2020-12-29T22:29:20.250642Z 0 [Note] InnoDB: Buffer pool(s) load completed at 201229 22:29:20
+mysqldb_1  | 2020-12-29T22:29:20.254764Z 0 [Note] Found ca.pem, server-cert.pem and server-key.pem in data directory. Trying to enable SSL support using them.
+mysqldb_1  | 2020-12-29T22:29:20.256236Z 0 [Note] Skipping generation of SSL certificates as certificate files are present in data directory.
+mysqldb_1  | 2020-12-29T22:29:20.260431Z 0 [Warning] CA certificate ca.pem is self signed.
+mysqldb_1  | 2020-12-29T22:29:20.261743Z 0 [Note] Skipping generation of RSA key pair as key files are present in data directory.
+mysqldb_1  | 2020-12-29T22:29:20.280749Z 0 [Warning] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysqldb_1  | 2020-12-29T22:29:20.307251Z 0 [Note] Event Scheduler: Loaded 0 events
+mysqldb_1  | 2020-12-29T22:29:20.308026Z 0 [Note] mysqld: ready for connections.
+mysqldb_1  | Version: '5.7.28'  socket: '/var/run/mysqld/mysqld.sock'  port: 0  MySQL Community Server (GPL)
+mysqldb_1  | 2020-12-29 22:29:20+00:00 [Note] [Entrypoint]: Temporary server started.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/iso3166.tab' as time zone. Skipping it.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/leap-seconds.list' as time zone. Skipping it.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/zone.tab' as time zone. Skipping it.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/zone1970.tab' as time zone. Skipping it.
+mysqldb_1  | 2020-12-29 22:29:24+00:00 [Note] [Entrypoint]: Creating database proje
+mysqldb_1  | 2020-12-29 22:29:24+00:00 [Note] [Entrypoint]: Creating user projemaster
+mysqldb_1  | 2020-12-29 22:29:24+00:00 [Note] [Entrypoint]: Giving user projemaster access to schema proje
+mysqldb_1  |
+mysqldb_1  | 2020-12-29 22:29:24+00:00 [Note] [Entrypoint]: /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/tabloyarat.sql
+mysqldb_1  |
+mysqldb_1  |
+mysqldb_1  | 2020-12-29 22:29:24+00:00 [Note] [Entrypoint]: Stopping temporary server
+mysqldb_1  | 2020-12-29T22:29:24.606165Z 0 [Note] Giving 0 client threads a chance to die gracefully
+mysqldb_1  | 2020-12-29T22:29:24.606585Z 0 [Note] Shutting down slave threads
+mysqldb_1  | 2020-12-29T22:29:24.606879Z 0 [Note] Forcefully disconnecting 0 remaining clients
+mysqldb_1  | 2020-12-29T22:29:24.607157Z 0 [Note] Event Scheduler: Purging the queue. 0 events
+mysqldb_1  | 2020-12-29T22:29:24.607683Z 0 [Note] Binlog end
+mysqldb_1  | 2020-12-29T22:29:24.624488Z 0 [Note] Shutting down plugin 'ngram'
+mysqldb_1  | 2020-12-29T22:29:24.630426Z 0 [Note] Shutting down plugin 'partition'
+mysqldb_1  | 2020-12-29T22:29:24.632205Z 0 [Note] Shutting down plugin 'BLACKHOLE'
+mysqldb_1  | 2020-12-29T22:29:24.633451Z 0 [Note] Shutting down plugin 'ARCHIVE'
+mysqldb_1  | 2020-12-29T22:29:24.634612Z 0 [Note] Shutting down plugin 'PERFORMANCE_SCHEMA'
+mysqldb_1  | 2020-12-29T22:29:24.635471Z 0 [Note] Shutting down plugin 'MRG_MYISAM'
+mysqldb_1  | 2020-12-29T22:29:24.638472Z 0 [Note] Shutting down plugin 'MyISAM'
+mysqldb_1  | 2020-12-29T22:29:24.645093Z 0 [Note] Shutting down plugin 'INNODB_SYS_VIRTUAL'
+mysqldb_1  | 2020-12-29T22:29:24.658379Z 0 [Note] Shutting down plugin 'INNODB_SYS_DATAFILES'
+mysqldb_1  | 2020-12-29T22:29:24.658703Z 0 [Note] Shutting down plugin 'INNODB_SYS_TABLESPACES'
+mysqldb_1  | 2020-12-29T22:29:24.659107Z 0 [Note] Shutting down plugin 'INNODB_SYS_FOREIGN_COLS'
+mysqldb_1  | 2020-12-29T22:29:24.659854Z 0 [Note] Shutting down plugin 'INNODB_SYS_FOREIGN'
+mysqldb_1  | 2020-12-29T22:29:24.662954Z 0 [Note] Shutting down plugin 'INNODB_SYS_FIELDS'
+mysqldb_1  | 2020-12-29T22:29:24.673195Z 0 [Note] Shutting down plugin 'INNODB_SYS_COLUMNS'
+mysqldb_1  | 2020-12-29T22:29:24.673541Z 0 [Note] Shutting down plugin 'INNODB_SYS_INDEXES'
+mysqldb_1  | 2020-12-29T22:29:24.673570Z 0 [Note] Shutting down plugin 'INNODB_SYS_TABLESTATS'
+mysqldb_1  | 2020-12-29T22:29:24.673587Z 0 [Note] Shutting down plugin 'INNODB_SYS_TABLES'
+mysqldb_1  | 2020-12-29T22:29:24.673601Z 0 [Note] Shutting down plugin 'INNODB_FT_INDEX_TABLE'
+mysqldb_1  | 2020-12-29T22:29:24.673616Z 0 [Note] Shutting down plugin 'INNODB_FT_INDEX_CACHE'
+mysqldb_1  | 2020-12-29T22:29:24.673630Z 0 [Note] Shutting down plugin 'INNODB_FT_CONFIG'
+mysqldb_1  | 2020-12-29T22:29:24.673644Z 0 [Note] Shutting down plugin 'INNODB_FT_BEING_DELETED'
+mysqldb_1  | 2020-12-29T22:29:24.673659Z 0 [Note] Shutting down plugin 'INNODB_FT_DELETED'
+mysqldb_1  | 2020-12-29T22:29:24.673673Z 0 [Note] Shutting down plugin 'INNODB_FT_DEFAULT_STOPWORD'
+mysqldb_1  | 2020-12-29T22:29:24.673688Z 0 [Note] Shutting down plugin 'INNODB_METRICS'
+mysqldb_1  | 2020-12-29T22:29:24.673702Z 0 [Note] Shutting down plugin 'INNODB_TEMP_TABLE_INFO'
+mysqldb_1  | 2020-12-29T22:29:24.673716Z 0 [Note] Shutting down plugin 'INNODB_BUFFER_POOL_STATS'
+mysqldb_1  | 2020-12-29T22:29:24.673730Z 0 [Note] Shutting down plugin 'INNODB_BUFFER_PAGE_LRU'
+mysqldb_1  | 2020-12-29T22:29:24.673744Z 0 [Note] Shutting down plugin 'INNODB_BUFFER_PAGE'
+mysqldb_1  | 2020-12-29T22:29:24.673758Z 0 [Note] Shutting down plugin 'INNODB_CMP_PER_INDEX_RESET'
+mysqldb_1  | 2020-12-29T22:29:24.673773Z 0 [Note] Shutting down plugin 'INNODB_CMP_PER_INDEX'
+mysqldb_1  | 2020-12-29T22:29:24.673788Z 0 [Note] Shutting down plugin 'INNODB_CMPMEM_RESET'
+mysqldb_1  | 2020-12-29T22:29:24.673803Z 0 [Note] Shutting down plugin 'INNODB_CMPMEM'
+mysqldb_1  | 2020-12-29T22:29:24.673818Z 0 [Note] Shutting down plugin 'INNODB_CMP_RESET'
+mysqldb_1  | 2020-12-29T22:29:24.673832Z 0 [Note] Shutting down plugin 'INNODB_CMP'
+mysqldb_1  | 2020-12-29T22:29:24.673847Z 0 [Note] Shutting down plugin 'INNODB_LOCK_WAITS'
+mysqldb_1  | 2020-12-29T22:29:24.673957Z 0 [Note] Shutting down plugin 'INNODB_LOCKS'
+mysqldb_1  | 2020-12-29T22:29:24.673989Z 0 [Note] Shutting down plugin 'INNODB_TRX'
+mysqldb_1  | 2020-12-29T22:29:24.674004Z 0 [Note] Shutting down plugin 'InnoDB'
+mysqldb_1  | 2020-12-29T22:29:24.674173Z 0 [Note] InnoDB: FTS optimize thread exiting.
+mysqldb_1  | 2020-12-29T22:29:24.674377Z 0 [Note] InnoDB: Starting shutdown...
+mysqldb_1  | 2020-12-29T22:29:24.775268Z 0 [Note] InnoDB: Dumping buffer pool(s) to /var/lib/mysql/ib_buffer_pool
+mysqldb_1  | 2020-12-29T22:29:24.775536Z 0 [Note] InnoDB: Buffer pool(s) dump completed at 201229 22:29:24
+mysqldb_1  | 2020-12-29T22:29:26.130270Z 0 [Note] InnoDB: Shutdown completed; log sequence number 12444399
+mysqldb_1  | 2020-12-29T22:29:26.140189Z 0 [Note] InnoDB: Removed temporary tablespace data file: "ibtmp1"
+mysqldb_1  | 2020-12-29T22:29:26.143012Z 0 [Note] Shutting down plugin 'MEMORY'
+mysqldb_1  | 2020-12-29T22:29:26.144550Z 0 [Note] Shutting down plugin 'CSV'
+mysqldb_1  | 2020-12-29T22:29:26.145364Z 0 [Note] Shutting down plugin 'sha256_password'
+mysqldb_1  | 2020-12-29T22:29:26.145640Z 0 [Note] Shutting down plugin 'mysql_native_password'
+mysqldb_1  | 2020-12-29T22:29:26.152505Z 0 [Note] Shutting down plugin 'binlog'
+mysqldb_1  | 2020-12-29T22:29:26.176234Z 0 [Note] mysqld: Shutdown complete
+mysqldb_1  |
+mysqldb_1  | 2020-12-29 22:29:26+00:00 [Note] [Entrypoint]: Temporary server stopped
+mysqldb_1  |
+mysqldb_1  | 2020-12-29 22:29:26+00:00 [Note] [Entrypoint]: MySQL init process done. Ready for start up.
+mysqldb_1  |
+mysqldb_1  | 2020-12-29T22:29:26.994026Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation for more details).
+mysqldb_1  | 2020-12-29T22:29:26.998090Z 0 [Note] mysqld (mysqld 5.7.28) starting as process 1 ...
+mysqldb_1  | 2020-12-29T22:29:27.008606Z 0 [Note] InnoDB: PUNCH HOLE support available
+mysqldb_1  | 2020-12-29T22:29:27.011774Z 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+mysqldb_1  | 2020-12-29T22:29:27.013072Z 0 [Note] InnoDB: Uses event mutexes
+mysqldb_1  | 2020-12-29T22:29:27.015517Z 0 [Note] InnoDB: GCC builtin __atomic_thread_fence() is used for memory barrier
+mysqldb_1  | 2020-12-29T22:29:27.015972Z 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+mysqldb_1  | 2020-12-29T22:29:27.016161Z 0 [Note] InnoDB: Using Linux native AIO
+mysqldb_1  | 2020-12-29T22:29:27.021984Z 0 [Note] InnoDB: Number of pools: 1
+mysqldb_1  | 2020-12-29T22:29:27.034220Z 0 [Note] InnoDB: Using CPU crc32 instructions
+mysqldb_1  | 2020-12-29T22:29:27.071860Z 0 [Note] InnoDB: Initializing buffer pool, total size = 128M, instances = 1, chunk size = 128M
+mysqldb_1  | 2020-12-29T22:29:27.091136Z 0 [Note] InnoDB: Completed initialization of buffer pool
+mysqldb_1  | 2020-12-29T22:29:27.102298Z 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+mysqldb_1  | 2020-12-29T22:29:27.115317Z 0 [Note] InnoDB: Highest supported file format is Barracuda.
+mysqldb_1  | 2020-12-29T22:29:27.132525Z 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+mysqldb_1  | 2020-12-29T22:29:27.133006Z 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+mysqldb_1  | 2020-12-29T22:29:27.177514Z 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+mysqldb_1  | 2020-12-29T22:29:27.181295Z 0 [Note] InnoDB: 96 redo rollback segment(s) found. 96 redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-29T22:29:27.185534Z 0 [Note] InnoDB: 32 non-redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-29T22:29:27.189027Z 0 [Note] InnoDB: Waiting for purge to start
+mysqldb_1  | 2020-12-29T22:29:27.241649Z 0 [Note] InnoDB: 5.7.28 started; log sequence number 12444399
+mysqldb_1  | 2020-12-29T22:29:27.244013Z 0 [Note] Plugin 'FEDERATED' is disabled.
+mysqldb_1  | 2020-12-29T22:29:27.255133Z 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+mysqldb_1  | 2020-12-29T22:29:27.301584Z 0 [Note] InnoDB: Buffer pool(s) load completed at 201229 22:29:27
+mysqldb_1  | 2020-12-29T22:29:27.323048Z 0 [Note] Found ca.pem, server-cert.pem and server-key.pem in data directory. Trying to enable SSL support using them.
+mysqldb_1  | 2020-12-29T22:29:27.323807Z 0 [Note] Skipping generation of SSL certificates as certificate files are present in data directory.
+mysqldb_1  | 2020-12-29T22:29:27.333310Z 0 [Warning] CA certificate ca.pem is self signed.
+mysqldb_1  | 2020-12-29T22:29:27.342043Z 0 [Note] Skipping generation of RSA key pair as key files are present in data directory.
+mysqldb_1  | 2020-12-29T22:29:27.349812Z 0 [Note] Server hostname (bind-address): '*'; port: 3306
+mysqldb_1  | 2020-12-29T22:29:27.355100Z 0 [Note] IPv6 is available.
+mysqldb_1  | 2020-12-29T22:29:27.356049Z 0 [Note]   - '::' resolves to '::';
+mysqldb_1  | 2020-12-29T22:29:27.358322Z 0 [Note] Server socket created on IP: '::'.
+mysqldb_1  | 2020-12-29T22:29:27.383324Z 0 [Warning] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysqldb_1  | 2020-12-29T22:29:27.413901Z 0 [Note] Event Scheduler: Loaded 0 events
+Gracefully stopping... (press Ctrl+C again to force)
+Stopping bolum66_websrv_1  ... done
+Stopping bolum66_mysqldb_1 ... done
+
+**Cntrl+C only stops, not to remove container and network**
+PS C:\AdanZyeDocker\kisim6\bolum66> docker ps -a
+CONTAINER ID        IMAGE                     COMMAND                  CREATED              STATUS                      PORTS               NAMES
+5e1d75f02c89        ozgurozturknet/webkayit   "docker-php-entrypoi"   About a minute ago   Exited (0) 10 seconds ago                       bolum66_websrv_1
+024406a5f78f        ozgurozturknet/webdb      "docker-entrypoint.s"   About a minute ago   Exited (0) 8 seconds ago                        bolum66_mysqldb_1
+
+PS C:\AdanZyeDocker\kisim6\bolum66> docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+cc945668f6ea        bolum66_webnet      bridge              local
+27a007c939a4        bridge              bridge              local
+bc224eb7a822        host                host                local
+9e453215f63e        myBridge            bridge              local
+8ad1749707e8        none                null                local
+
+**When we use 'down', it will be deleting all network and container
+PS C:\AdanZyeDocker\kisim6\bolum66> docker-compose down
+Removing bolum66_websrv_1  ... done
+Removing bolum66_mysqldb_1 ... done
+Removing network bolum66_webnet
+
+PS C:\AdanZyeDocker\kisim6\bolum66> docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+
+PS C:\AdanZyeDocker\kisim6\bolum66> docker network ls
+NETWORK ID          NAME                DRIVER              SCOPE
+27a007c939a4        bridge              bridge              local
+bc224eb7a822        host                host                local
+9e453215f63e        myBridge            bridge              local
+8ad1749707e8        none                null                local
+
+
+PS C:\AdanZyeDocker\kisim6\bolum66> docker-compose up -d
+Creating network "bolum66_webnet" with driver "bridge"
+Creating bolum66_mysqldb_1 ... done
+Creating bolum66_websrv_1  ... done
+
+PS C:\AdanZyeDocker\kisim6\bolum66> docker-compose config
+networks:
+  webnet:
+    driver: bridge
+services:
+  mysqldb:
+    environment:
+      MYSQL_DATABASE: proje
+      MYSQL_PASSWORD: master1234
+      MYSQL_ROOT_PASSWORD: master1234
+      MYSQL_USER: projemaster
+    image: ozgurozturknet/webdb
+    networks:
+      webnet: null
+  websrv:
+    depends_on:
+    - mysqldb
+    environment:
+      DB_NAME: proje
+      DB_PASS: master1234
+      DB_SERVER: mysqldb
+      DB_USERNAME: projemaster
+    image: ozgurozturknet/webkayit
+    networks:
+      webnet: null
+    ports:
+    - published: 80
+      target: 80
+    restart: always
+version: '3.7'
+
+**Which images are working in docker-compose we can look at it**
+PS C:\AdanZyeDocker\kisim6\bolum66> docker-compose images
+The system cannot find the path specified.
+    Container             Repository           Tag       Image Id      Size
+----------------------------------------------------------------------------
+bolum66_mysqldb_1   ozgurozturknet/webdb      latest   3e6048caa2a4   416 MB
+bolum66_websrv_1    ozgurozturknet/webkayit   latest   3b8929349c0b   461 MB
+
+PS C:\AdanZyeDocker\kisim6\bolum66> docker-compose logs
+Attaching to bolum66_websrv_1, bolum66_mysqldb_1
+websrv_1   | AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.22.0.3. Set the 'ServerName' directive globally to suppress this message
+websrv_1   | AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.22.0.3. Set the 'ServerName' directive globally to suppress this message
+websrv_1   | [Tue Dec 29 22:31:19.416143 2020] [mpm_prefork:notice] [pid 1] AH00163: Apache/2.4.38 (Debian) PHP/7.3.13 configured -- resuming normal operations
+...
+mysqldb_1  | 2020-12-29T22:31:32.125912Z 0 [Note] Server hostname (bind-address): '*'; port: 3306
+mysqldb_1  | 2020-12-29T22:31:32.126795Z 0 [Note] IPv6 is available.
+mysqldb_1  | 2020-12-29T22:31:32.127530Z 0 [Note]   - '::' resolves to '::';
+mysqldb_1  | 2020-12-29T22:31:32.128023Z 0 [Note] Server socket created on IP: '::'.
+mysqldb_1  | 2020-12-29T22:31:32.131097Z 0 [Warning] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysqldb_1  | 2020-12-29T22:31:32.184218Z 0 [Note] Event Scheduler: Loaded 0 events
+mysqldb_1  | 2020-12-29T22:31:32.186341Z 0 [Note] mysqld: ready for connections.
+mysqldb_1  | Version: '5.7.28'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server (GPL)
+
+PS C:\AdanZyeDocker\kisim6\bolum66> docker-compose exec websrv ls -al
+total 24
+drwxrwxrwx 1 www-data www-data 4096 Jan 15  2020 .
+drwxr-xr-x 1 root     root     4096 Dec 28  2019 ..
+-rwxr-xr-x 1 root     root     1146 Jan 15  2020 add.php
+drwxrwxrwx 1 root     root     4096 Jan 15  2020 images
+-rwxr-xr-x 1 root     root      306 Jan  2  2019 index.html
+-rwxr-xr-x 1 root     root      732 Jan 15  2020 view.php
+
+PS C:\AdanZyeDocker\kisim6\bolum66> docker ps
+CONTAINER ID        IMAGE                     COMMAND                  CREATED             STATUS              PORTS                 NAMES
+13df7e8a1297        ozgurozturknet/webkayit   "docker-php-entrypoi"   4 minutes ago       Up 4 minutes        0.0.0.0:80->80/tcp    bolum66_websrv_1
+b80d50658c18        ozgurozturknet/webdb      "docker-entrypoint.s"   4 minutes ago       Up 4 minutes        3306/tcp, 33060/tcp   bolum66_mysqldb_1
+
+PS C:\AdanZyeDocker\kisim6\bolum66> docker-compose down
+Stopping bolum66_websrv_1  ... done
+Stopping bolum66_mysqldb_1 ... done
+Removing bolum66_websrv_1  ... done
+Removing bolum66_mysqldb_1 ... done
+Removing network bolum66_webnet
+_____
+
+
+
+
+
+
