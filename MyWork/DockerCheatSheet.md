@@ -2549,7 +2549,7 @@ abc.txt  boot  etc   lib    lib64   media  opt   root  sbin  sys      test.txt  
 bin      dev   home  lib32  libx32  mnt    proc  run   srv   test.sh  tmp       var
 Sun Dec 27 20:38:33 UTC 2020
 
-7. '&&' double ampersand : If the left side of && works, the right side of && will be working!
+7. '&&' double ampersand : If the left side of double ampersand works, the right side of double ampersand will be working!
 root@5b63847f6133:/# cat abc.txt
 123456
 root@5b63847f6133:/# cat def.txt
@@ -2560,7 +2560,7 @@ the file was found
 root@5b63847f6133:/# cat def.txt && echo "the file was found"
 cat: def.txt: No such file or directory
 
-8. '||' double pipe : If the left side of || works, the right side of || will not be working! (Opposite of &&)
+8. '||' double pipe : If the left side of double pipe works, the right side of double pipe will not be working! (Opposite of &&)
 root@5b63847f6133:/# cat abc.txt || echo "test"
 123456
 root@5b63847f6133:/# cat def.txt || echo "test"
@@ -3437,4 +3437,7 @@ Get https://192.168.99.100:5000/v2/: http: server gave HTTP response to HTTPS cl
 
 **How to pull an image from local registry server**
 PS C:\> docker pull 192.168.99.100:5000/hello-app:latest
+
+--------------------------------------------------------------------------------
+Date of Notes : 29-12-2020
 

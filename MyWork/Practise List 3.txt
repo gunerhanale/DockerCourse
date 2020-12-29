@@ -1,18 +1,152 @@
-1: İlk olarak sistemde bir temizlik yapalım ki alıştırmalarımızla çakışma olmasın. 
+1: İlk olarak sistemde bir temizlik yapalım ki alıştırmalarımızla çakışma olmasın.
 Varsa sistemdeki tüm containerları silelim. 
 
+PS C:\Users\ebubekir> docker container prune
+PS C:\Users\ebubekir> docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
+c1883aec39d7        registry            "/entrypoint.sh /etc"   12 hours ago        Up 15 minutes       0.0.0.0:5000->5000/tcp   registry
+PS C:\Users\ebubekir> docker rm -f registry
+registry
+PS C:\Users\ebubekir> docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+
 2: Docker logout ve docker login komutlarını kullanarak hesabımızdan logout olup tekrar login olalım. 
+
+PS C:\Users\ebubekir> docker logout
+Removing login credentials for https://index.docker.io/v1/
+PS C:\Users\ebubekir> docker login
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username: gunerhanale
+Password:
+WARNING! Your password will be stored unencrypted in C:\Users\ebubekir\.docker\config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
 
 3: Önceden oluşturduğunuz ve saklamanız gereken imajlar var ise bunları docker hub'a gönderin 
 ve ardından sistemdeki tüm imajları silin
 
+--Tag komutu; Image'in local de yeiden farklı bir tag ile oluşmasını sağlar.
+PS C:\Users\ebubekir> docker image tag gunerhanale/py:latest gunerhanale/py2:latest
+
+PS C:\Users\ebubekir> docker image push gunerhanale/py:latest
+The push refers to repository [docker.io/gunerhanale/py]
+
+PS C:\Users\ebubekir> docker image prune -a
+
 4: Docker hub'da kendi hesabınız altinda "alistirma" adıyla public bir repository yaratın. 
+OK!
 
 5: Centos imajının latest ve 7, ubuntu imajının latest, 18.04 ve 20.04, alpine imajının latest, 
 nginx imajının latest ve alpine tagli imajlarını sisteme çekin. 
 
+PS C:\Users\ebubekir> docker image pull centos:latest
+latest: Pulling from library/centos
+7a0437f04f83: Pull complete
+Digest: sha256:5528e8b1b1719d34604c87e11dcd1c0a20bedf46e83b5632cdeac91b8c04efc1
+Status: Downloaded newer image for centos:latest
+docker.io/library/centos:latest
+PS C:\Users\ebubekir> docker image pull centos:7
+7: Pulling from library/centos
+2d473b07cdd5: Pull complete
+Digest: sha256:0f4ec88e21daf75124b8a9e5ca03c37a5e937e0e108a255d890492430789b60e
+Status: Downloaded newer image for centos:7
+docker.io/library/centos:7
+PS C:\Users\ebubekir> docker image pull ubuntu:latest
+latest: Pulling from library/ubuntu
+da7391352a9b: Pull complete
+14428a6d4bcd: Pull complete
+2c2d948710f2: Pull complete
+Digest: sha256:c95a8e48bf88e9849f3e0f723d9f49fa12c5a00cfc6e60d2bc99d87555295e4c
+Status: Downloaded newer image for ubuntu:latest
+docker.io/library/ubuntu:latest
+PS C:\Users\ebubekir> docker image pull ubuntu:18.04
+18.04: Pulling from library/ubuntu
+f22ccc0b8772: Pull complete
+3cf8fb62ba5f: Pull complete
+e80c964ece6a: Pull complete
+Digest: sha256:fd25e706f3dea2a5ff705dbc3353cf37f08307798f3e360a13e9385840f73fb3
+Status: Downloaded newer image for ubuntu:18.04
+docker.io/library/ubuntu:18.04
+PS C:\Users\ebubekir> docker image pull ubuntu:20.04
+20.04: Pulling from library/ubuntu
+Digest: sha256:c95a8e48bf88e9849f3e0f723d9f49fa12c5a00cfc6e60d2bc99d87555295e4c
+Status: Downloaded newer image for ubuntu:20.04
+docker.io/library/ubuntu:20.04
+PS C:\Users\ebubekir> docker image pull alpine:latest
+latest: Pulling from library/alpine
+801bfaa63ef2: Pull complete
+Digest: sha256:3c7497bf0c7af93428242d6176e8f7905f2201d8fc5861f45be7a346b5f23436
+Status: Downloaded newer image for alpine:latest
+docker.io/library/alpine:latest
+PS C:\Users\ebubekir> docker image pull nginx:latest
+latest: Pulling from library/nginx
+6ec7b7d162b2: Pull complete
+cb420a90068e: Pull complete
+2766c0bf2b07: Pull complete
+e05167b6a99d: Pull complete
+70ac9d795e79: Pull complete
+Digest: sha256:4cf620a5c81390ee209398ecc18e5fb9dd0f5155cd82adcbae532fec94006fb9
+Status: Downloaded newer image for nginx:latest
+docker.io/library/nginx:latest
+PS C:\Users\ebubekir> docker image pull nginx:alpine
+alpine: Pulling from library/nginx
+801bfaa63ef2: Already exists
+b1242e25d284: Pull complete
+7453d3e6b909: Pull complete
+07ce7418c4f8: Pull complete
+e295e0624aa3: Pull complete
+Digest: sha256:c2ce58e024275728b00a554ac25628af25c54782865b3487b11c21cafb7fabda
+Status: Downloaded newer image for nginx:alpine
+docker.io/library/nginx:alpine
+PS C:\Users\ebubekir> docker image ls
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+nginx               alpine              629df02b47c8        11 days ago         22.3MB
+alpine              latest              389fef711851        12 days ago         5.58MB
+nginx               latest              ae2feff98a0c        13 days ago         133MB
+centos              latest              300e315adb2f        3 weeks ago         209MB
+ubuntu              20.04               f643c72bc252        4 weeks ago         72.9MB
+ubuntu              latest              f643c72bc252        4 weeks ago         72.9MB
+ubuntu              18.04               2c047404e52d        4 weeks ago         63.3MB
+centos              7                   8652b9f0cb4c        6 weeks ago         204MB
+
+
 6: ubuntu:18.04 imajına dockerhubkullaniciadiniz/alistirma:ubuntu olarak tag ekleyin ve ardından bu yeni imajı 
 docker hub'a gönderin. Alistirma repository'inizden imajı check edin. 
+
+PS C:\Users\ebubekir> docker image ls
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+nginx               alpine              629df02b47c8        11 days ago         22.3MB
+alpine              latest              389fef711851        12 days ago         5.58MB
+nginx               latest              ae2feff98a0c        13 days ago         133MB
+centos              latest              300e315adb2f        3 weeks ago         209MB
+ubuntu              20.04               f643c72bc252        4 weeks ago         72.9MB
+ubuntu              latest              f643c72bc252        4 weeks ago         72.9MB
+ubuntu              18.04               2c047404e52d        4 weeks ago         63.3MB
+centos              7                   8652b9f0cb4c        6 weeks ago         204MB
+
+PS C:\Users\ebubekir> docker image tag ubuntu:18.04 gunerhanale/alistirma:ubuntu
+
+PS C:\Users\ebubekir> docker image push gunerhanale/alistirma:ubuntu
+The push refers to repository [docker.io/gunerhanale/alistirma]
+fe6d8881187d: Mounted from gunerhanale/hello
+23135df75b44: Mounted from gunerhanale/hello
+b43408d5f11b: Mounted from gunerhanale/hello
+ubuntu: digest: sha256:a7fa45fb43d471f4e66c5b53b1b9b0e02f7f1d37a889a41bbe1601fac70cb54e size: 943
+
+PS C:\Users\ebubekir> docker image ls
+REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE
+nginx                   alpine              629df02b47c8        11 days ago         22.3MB
+alpine                  latest              389fef711851        12 days ago         5.58MB
+nginx                   latest              ae2feff98a0c        13 days ago         133MB
+centos                  latest              300e315adb2f        3 weeks ago         209MB
+ubuntu                  20.04               f643c72bc252        4 weeks ago         72.9MB
+ubuntu                  latest              f643c72bc252        4 weeks ago         72.9MB
+gunerhanale/alistirma   ubuntu              2c047404e52d        4 weeks ago         63.3MB
+ubuntu                  18.04               2c047404e52d        4 weeks ago         63.3MB
+centos                  7                   8652b9f0cb4c        6 weeks ago         204MB
+
 
 7:Bu alistirma.txt dosyasının olduğu klasörde bir Dockerfile oluşturun: 
 - Base imaj olarak nginx:latest imajını kullanın
@@ -26,20 +160,233 @@ docker hub'a gönderin. Alistirma repository'inizden imajı check edin.
 zaman aşımı süresi de 30 saniye olsun. Deneme sayısı 3 olsun. 
 - Bu imajdan bir container yaratıldığı zaman ./script.sh dosyasının çalışmasını sağlayan talimatı exec formunda girin. 
 
+Dockerfile:
+FROM nginx:latest
+LABEL maintainer="Ebubekir Gunerhanal @gunerhanale" version="1.0" name="testnginx"
+ENV KULLANICI="Ebubekir"
+ARG RENK
+RUN apt-get update && apt-get install -y curl htop wget
+WORKDIR /gecici
+ADD https://wordpress.org/latest.tar.gz .
+WORKDIR /usr/share/nginx/html
+COPY html/${RENK} .
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://192.168.99.100/ || exit 1
+CMD [ "./script.sh" ]
+
+
 8: Bu Dockerfile dosyasından 2 imaj yaratın. Birinci imajda build ARG olarak RENK:kirmizi ikinci imajda da
 build ARG olarak RENK:sari kullanın. Kirmizi olan imajın tagi dockerhubkullaniciadiniz/alistirma:kirmizi 
-Sari olan imajin tagi dockerhubkullaniciadiniz/alistirma:sari olsun. 
+Sari olan imajin tagi dockerhubkullaniciadiniz/alistirma:sari olsun.
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image build -t gunerhanale/alistirma:kirmizi --build-arg RENK=kirmizi .
+Sending build context to Docker daemon  15.87kB
+Step 1/11 : FROM nginx:latest
+ ---> ae2feff98a0c
+Step 2/11 : LABEL maintainer="Ebubekir Gunerhanal @gunerhanale" version="1.0" name="testnginx"
+ ---> Running in 1ce3e31902e8
+Removing intermediate container 1ce3e31902e8
+ ---> bb18426cc63f
+Step 3/11 : ENV KULLANICI="Ebubekir"
+ ---> Running in 61ed4e573836
+Removing intermediate container 61ed4e573836
+ ---> b682aecc6ef8
+Step 4/11 : ARG RENK
+ ---> Running in d195092655fc
+Removing intermediate container d195092655fc
+ ---> 9316b9d0c58b
+Step 5/11 : RUN apt-get update && apt-get install -y curl htop wget
+ ---> Running in 29a69a378d6d
+Get:1 http://security.debian.org/debian-security buster/updates InRelease [65.4 kB]
+Get:2 http://deb.debian.org/debian buster InRelease [121 kB]
+Get:3 http://deb.debian.org/debian buster-updates InRelease [51.9 kB]
+Get:4 http://security.debian.org/debian-security buster/updates/main amd64 Packages [258 kB]
+Get:5 http://deb.debian.org/debian buster/main amd64 Packages [7907 kB]
+Get:6 http://deb.debian.org/debian buster-updates/main amd64 Packages [7860 B]
+Fetched 8412 kB in 5s (1661 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+curl is already the newest version (7.64.0-4+deb10u1).
+Suggested packages:
+  lsof strace
+The following NEW packages will be installed:
+  htop libpcre2-8-0 wget
+0 upgraded, 3 newly installed, 0 to remove and 1 not upgraded.
+Need to get 1208 kB of archives.
+After this operation, 4155 kB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian buster/main amd64 libpcre2-8-0 amd64 10.32-5 [213 kB]
+Get:2 http://deb.debian.org/debian buster/main amd64 wget amd64 1.20.1-1.1 [902 kB]
+Get:3 http://deb.debian.org/debian buster/main amd64 htop amd64 2.2.0-1+b1 [92.8 kB]
+debconf: delaying package configuration, since apt-utils is not installed
+Fetched 1208 kB in 0s (2880 kB/s)
+Selecting previously unselected package libpcre2-8-0:amd64.
+(Reading database ... 7629 files and directories currently installed.)
+Preparing to unpack .../libpcre2-8-0_10.32-5_amd64.deb ...
+Unpacking libpcre2-8-0:amd64 (10.32-5) ...
+Selecting previously unselected package wget.
+Preparing to unpack .../wget_1.20.1-1.1_amd64.deb ...
+Unpacking wget (1.20.1-1.1) ...
+Selecting previously unselected package htop.
+Preparing to unpack .../htop_2.2.0-1+b1_amd64.deb ...
+Unpacking htop (2.2.0-1+b1) ...
+Setting up htop (2.2.0-1+b1) ...
+Setting up libpcre2-8-0:amd64 (10.32-5) ...
+Setting up wget (1.20.1-1.1) ...
+Processing triggers for libc-bin (2.28-10) ...
+Removing intermediate container 29a69a378d6d
+ ---> 73ba0fcf3423
+Step 6/11 : WORKDIR /gecici
+ ---> Running in 83a6279facf8
+Removing intermediate container 83a6279facf8
+ ---> aeabd68c649d
+Step 7/11 : ADD https://wordpress.org/latest.tar.gz .
+Downloading [==================================================>]  15.42MB/15.42MB
+
+ ---> d9cdba58d5da
+Step 8/11 : WORKDIR /usr/share/nginx/html
+ ---> Running in 6f1d37e4291d
+Removing intermediate container 6f1d37e4291d
+ ---> a981bcc8081c
+Step 9/11 : COPY html/${RENK} .
+ ---> 4f59831b1306
+Step 10/11 : HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://192.168.99.100/ || exit 1
+ ---> Running in bc39fe5265e3
+Removing intermediate container bc39fe5265e3
+ ---> fd6a4350d8a3
+Step 11/11 : CMD [ "./script.sh" ]
+ ---> Running in f9bee6f20252
+Removing intermediate container f9bee6f20252
+ ---> ea292981e09d
+Successfully built ea292981e09d
+Successfully tagged gunerhanale/alistirma:kirmizi
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image build -t gunerhanale/alistirma:sari --build-arg RENK=sari .
+Sending build context to Docker daemon  15.87kB
+Step 1/11 : FROM nginx:latest
+ ---> ae2feff98a0c
+Step 2/11 : LABEL maintainer="Ebubekir Gunerhanal @gunerhanale" version="1.0" name="testnginx"
+ ---> Using cache
+ ---> bb18426cc63f
+Step 3/11 : ENV KULLANICI="Ebubekir"
+ ---> Using cache
+ ---> b682aecc6ef8
+Step 4/11 : ARG RENK
+ ---> Using cache
+ ---> 9316b9d0c58b
+Step 5/11 : RUN apt-get update && apt-get install -y curl htop wget
+ ---> Running in 142be8e3c30d
+Get:1 http://security.debian.org/debian-security buster/updates InRelease [65.4 kB]
+Get:2 http://deb.debian.org/debian buster InRelease [121 kB]
+Get:3 http://deb.debian.org/debian buster-updates InRelease [51.9 kB]
+Get:4 http://security.debian.org/debian-security buster/updates/main amd64 Packages [258 kB]
+Get:5 http://deb.debian.org/debian buster/main amd64 Packages [7907 kB]
+Get:6 http://deb.debian.org/debian buster-updates/main amd64 Packages [7860 B]
+Fetched 8412 kB in 6s (1501 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+curl is already the newest version (7.64.0-4+deb10u1).
+Suggested packages:
+  lsof strace
+The following NEW packages will be installed:
+  htop libpcre2-8-0 wget
+0 upgraded, 3 newly installed, 0 to remove and 1 not upgraded.
+Need to get 1208 kB of archives.
+After this operation, 4155 kB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian buster/main amd64 libpcre2-8-0 amd64 10.32-5 [213 kB]
+Get:2 http://deb.debian.org/debian buster/main amd64 wget amd64 1.20.1-1.1 [902 kB]
+Get:3 http://deb.debian.org/debian buster/main amd64 htop amd64 2.2.0-1+b1 [92.8 kB]
+debconf: delaying package configuration, since apt-utils is not installed
+Fetched 1208 kB in 0s (3606 kB/s)
+Selecting previously unselected package libpcre2-8-0:amd64.
+(Reading database ... 7629 files and directories currently installed.)
+Preparing to unpack .../libpcre2-8-0_10.32-5_amd64.deb ...
+Unpacking libpcre2-8-0:amd64 (10.32-5) ...
+Selecting previously unselected package wget.
+Preparing to unpack .../wget_1.20.1-1.1_amd64.deb ...
+Unpacking wget (1.20.1-1.1) ...
+Selecting previously unselected package htop.
+Preparing to unpack .../htop_2.2.0-1+b1_amd64.deb ...
+Unpacking htop (2.2.0-1+b1) ...
+Setting up htop (2.2.0-1+b1) ...
+Setting up libpcre2-8-0:amd64 (10.32-5) ...
+Setting up wget (1.20.1-1.1) ...
+Processing triggers for libc-bin (2.28-10) ...
+Removing intermediate container 142be8e3c30d
+ ---> b2e53063b9a1
+Step 6/11 : WORKDIR /gecici
+ ---> Running in 4d0cca6ed8ca
+Removing intermediate container 4d0cca6ed8ca
+ ---> 2c60751c5fd9
+Step 7/11 : ADD https://wordpress.org/latest.tar.gz .
+Downloading [==================================================>]  15.42MB/15.42MB
+
+ ---> d37eb9daa8a8
+Step 8/11 : WORKDIR /usr/share/nginx/html
+ ---> Running in f2ba89be099b
+Removing intermediate container f2ba89be099b
+ ---> aa7714bf8f26
+Step 9/11 : COPY html/${RENK} .
+ ---> 017e864c24b1
+Step 10/11 : HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl -f http://192.168.99.100/ || exit 1
+ ---> Running in 143516c93a52
+Removing intermediate container 143516c93a52
+ ---> ef2881c86c59
+Step 11/11 : CMD [ "./script.sh" ]
+ ---> Running in 76b6c4681409
+Removing intermediate container 76b6c4681409
+ ---> cb83f3eff5d9
+Successfully built cb83f3eff5d9
+Successfully tagged gunerhanale/alistirma:sari
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image ls
+REPOSITORY              TAG                 IMAGE ID            CREATED              SIZE
+gunerhanale/alistirma   sari                cb83f3eff5d9        57 seconds ago       168MB
+gunerhanale/alistirma   kirmizi             ea292981e09d        About a minute ago   168MB
+nginx                   alpine              629df02b47c8        11 days ago          22.3MB
+alpine                  latest              389fef711851        12 days ago          5.58MB
+nginx                   latest              ae2feff98a0c        13 days ago          133MB
+centos                  latest              300e315adb2f        3 weeks ago          209MB
+ubuntu                  20.04               f643c72bc252        4 weeks ago          72.9MB
+ubuntu                  latest              f643c72bc252        4 weeks ago          72.9MB
+gunerhanale/alistirma   ubuntu              2c047404e52d        4 weeks ago          63.3MB
+ubuntu                  18.04               2c047404e52d        4 weeks ago          63.3MB
+centos                  7                   8652b9f0cb4c        6 weeks ago          204MB
+
 
 9: dockerhubkullaniciadiniz/alistirma:kirmizi imajını kullanarak bir container yaratın. Detach olsun.
 Makinenin 80 portuna gelen istekler bu containerın 80 portuna gitsin. Container adi kirmizi olsun.
 Browser'dan http://127.0.0.1 sayfasına gidip check edin.  
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker container run -d --name=kirmizi -p 80:80 gunerhanale/alistirma:kirmizi
 
 10: dockerhubkullaniciadiniz/alistirma:sari imajını kullanarak bir container yaratın. Detach olsun.
 Makinenin 8080 portuna gelen istekler bu containerın 80 portuna gitsin.
 KULLANICI enviroment variable değerini "Deneme" olarak atayın. Container adi sari olsun. 
 Browser'dan http://127.0.0.1:8080 sayfasına gidip check edin.
 
+PS C:\AdanZyeDocker\kisim5\bolum63> docker container run -d --name=sari -p 8080:80 --env KULLANICI=Deneme gunerhanale/alistirma:sari
+
 11: Containerları kapatıp silelim. 
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker ps -a
+CONTAINER ID        IMAGE                           COMMAND                  CREATED             STATUS                        PORTS               NAMES
+91aab69a348d        gunerhanale/alistirma:sari      "/docker-entrypoint."   29 seconds ago      Exited (127) 30 seconds ago                       sari
+076c43c683e7        gunerhanale/alistirma:kirmizi   "/docker-entrypoint."   4 minutes ago       Exited (127) 4 minutes ago                        kirmizi
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker container prune
+WARNING! This will remove all stopped containers.
+Are you sure you want to continue? [y/N] y
+Deleted Containers:
+91aab69a348d33cb51c81b912291f77ff6ccf2dc2cc56fa0e65c39c5dd41018b
+076c43c683e7c02bb257089121d320ff5729b51cf45c7f3625a41d56355e583a
+
+Total reclaimed space: 0B
 
 12: Bu alistirma.txt dosyasının olduğu klasörde Dockerfile.multi isimli bir Dockerfile oluşturun: 
 - Bu multi stage build alıştırması olacak. 
@@ -50,14 +397,87 @@ Browser'dan http://127.0.0.1:8080 sayfasına gidip check edin.
 - /uygulama klasörüne geçin ve birinci aşamadıki imajın /usr/src/uygulama klasörünün içeriğini buraya kopyalayın
 - Bu imajdan container yaratıldığı zaman "java uygulama" komutunun çalışması için talimat girin
 
+FROM mcr.microsoft.com/java/jdk:8-zulu-alpine AS birinci
+WORKDIR /usr/src/uygulama
+COPY /source .
+RUN javac uygulama.java
+
+FROM mcr.microsoft.com/java/jre:8-zulu-alpine
+WORKDIR /usr/src/uygulama
+COPY --from=birinci /usr/src/uygulama .
+CMD [ "java", "uygulama" ]
+
+
 13: Bu Dockerfile.multi dosyasından dockerhubkullaniciadiniz/alistirma:java tagli bir imaj yaratın. 
 
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image build -t gunerhanale/alistirma:java -f .\Dockerfile.multi .
+
 14: Bu imajdan bir container yaratın ve java uygulamanızın çıkardığı mesajı görün.
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker run gunerhanale/alistirma:java
+Merhaba ben bir java konsol uygulamasiyim
 
 15: dockerhubkullaniciadiniz/alistirma:kirmizi, dockerhubkullaniciadiniz/alistirma:sari, dockerhubkullaniciadiniz/alistirma:java
 imajlarını Docker hub'a yollayın. 
 
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image push gunerhanale/alistirma:sari
+The push refers to repository [docker.io/gunerhanale/alistirma]
+883c04570d9c: Pushed
+afb7a516eb23: Pushed
+51eec66026b7: Pushed
+9fb7bac01978: Pushed
+4eaf0ea085df: Mounted from gunerhanale/hello-docker
+2c7498eef94a: Mounted from gunerhanale/hello-docker
+7d2b207c2679: Mounted from gunerhanale/hello-docker
+5c4e5adc71a8: Mounted from gunerhanale/hello-docker
+87c8a1d8f54f: Mounted from gunerhanale/hello-docker
+sari: digest: sha256:85dc1f47f8fdf95dd9bf672e83b7b73e29b39a2110f338470d4982542bbe1738 size: 2200
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image push gunerhanale/alistirma:kirmizi
+The push refers to repository [docker.io/gunerhanale/alistirma]
+c69a1f4594cb: Pushed
+2fd7813c3b52: Pushed
+3c48142ecf57: Pushed
+23f5a06e891d: Pushed
+4eaf0ea085df: Layer already exists
+2c7498eef94a: Layer already exists
+7d2b207c2679: Layer already exists
+5c4e5adc71a8: Layer already exists
+87c8a1d8f54f: Layer already exists
+kirmizi: digest: sha256:6a5fb97c442ccd21d9f462e1570c5a856d460f72c41336cf23d157795ea007c5 size: 2200
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image push gunerhanale/alistirma:java
+The push refers to repository [docker.io/gunerhanale/alistirma]
+53eb809af30a: Pushed
+d226b8923f16: Pushed
+0f048c7291fc: Pushed
+777b2c648970: Mounted from gunerhanale/py
+java: digest: sha256:bfdb6af0a31dd963960e65ff760851980f8afb0349ccce46e7ced212746ab64d size: 1154
+
 16: Docker hub'daki registry isimli imajdan lokal bir Docker Registry çalıştırın. 
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image pull registry
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker run -d -p 5000:5000 --restart always --name registry registry
 
 17: dockerhubkullaniciadiniz/alistirma:kirmizi, dockerhubkullaniciadiniz/alistirma:sari, dockerhubkullaniciadiniz/alistirma:java
 imajlarını yeniden tagleyerek bu lokal registry'e gönderin ve ardından bu registry'nin web arayüzünden kontrol edin. 
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image tag gunerhanale/alistirma:sari 127.0.0.1:5000/alistirma:sari
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image tag gunerhanale/alistirma:kirmizi 127.0.0.1:5000/alistirma:kirmizi
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image tag gunerhanale/alistirma:java 127.0.0.1:5000/alistirma:java
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image ls
+REPOSITORY                   TAG                 IMAGE ID            CREATED             SIZE
+127.0.0.1:5000/alistirma     java                a86d42c63da2        15 minutes ago      144MB
+gunerhanale/alistirma        java                a86d42c63da2        15 minutes ago      144MB
+127.0.0.1:5000/alistirma     kirmizi             5ab0bc5a32a4        6 hours ago         168MB
+gunerhanale/alistirma        kirmizi             5ab0bc5a32a4        6 hours ago         168MB
+127.0.0.1:5000/alistirma     sari                f216cc50b77a        6 hours ago         168MB
+gunerhanale/alistirma        sari                f216cc50b77a        6 hours ago         168MB
+
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image push 127.0.0.1:5000/alistirma:sari
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image push 127.0.0.1:5000/alistirma:kirmizi
+PS C:\AdanZyeDocker\kisim5\bolum63> docker image push 127.0.0.1:5000/alistirma:java
+
+
