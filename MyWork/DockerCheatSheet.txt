@@ -4697,3 +4697,35 @@ CONTAINER ID   IMAGE          COMMAND                  CREATED              STAT
 7d45e6bd5e6c   nginx:latest   "/docker-entrypoint.…"   About a minute ago   Up About a minute   80/tcp    test.4.itr865jwaqdl4a4k14cl3sofz
 
 
+[node2] (local) root@192.168.0.7 ~
+$ docker swarm join --token SWMTKN-1-2ltxo74cua46bxjtytmkmfmf2dw1x57dxscbjyxmvr48c38lse-280lr854rd9alo80u3hprujc8 192.168.0.8:2377
+This node joined a swarm as a manager.
+[node2] (local) root@192.168.0.7 ~
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+9df700041c70   nginx:latest   "/docker-entrypoint.…"   4 minutes ago   Up 4 minutes   80/tcp    test.5.er21mw333s1uzsnh0okelehl2
+
+[node3] (local) root@192.168.0.6 ~
+$ docker swarm join --token SWMTKN-1-2ltxo74cua46bxjtytmkmfmf2dw1x57dxscbjyxmvr48c38lse-280lr854rd9alo80u3hprujc8 192.168.0.8:2377
+This node joined a swarm as a manager.
+[node3] (local) root@192.168.0.6 ~
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+248f151fd12c   nginx:latest   "/docker-entrypoint.…"   4 minutes ago   Up 4 minutes   80/tcp    test.1.8izcxc1qz6s1kjnnskvsphhkz
+
+[node4] (local) root@192.168.0.5 ~
+$ docker swarm join --token SWMTKN-1-2ltxo74cua46bxjtytmkmfmf2dw1x57dxscbjyxmvr48c38lse-bc288gj6d5jso25ynx332ryht 192.168.0.8:2377
+This node joined a swarm as a worker.
+[node4] (local) root@192.168.0.5 ~
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+5456bcb1f348   nginx:latest   "/docker-entrypoint.…"   4 minutes ago   Up 4 minutes   80/tcp    test.2.6hz7qtwyoqt7sc20vey0weu3s
+
+[node5] (local) root@192.168.0.4 ~
+$ docker swarm join --token SWMTKN-1-2ltxo74cua46bxjtytmkmfmf2dw1x57dxscbjyxmvr48c38lse-bc288gj6d5jso25ynx332ryht 192.168.0.8:2377
+This node joined a swarm as a worker.
+[node5] (local) root@192.168.0.4 ~
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+31dc26190648   nginx:latest   "/docker-entrypoint.…"   4 minutes ago   Up 4 minutes   80/tcp    test.3.tsf5d5ihvy4l099tav6jc8jx4
+
