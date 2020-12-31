@@ -3844,10 +3844,83 @@ Stopping bolum66_mysqldb_1 ... done
 Removing bolum66_websrv_1  ... done
 Removing bolum66_mysqldb_1 ... done
 Removing network bolum66_webnet
-_____
 
+-----------------------------------------------------------------------------
 
+Date of Notes : 31-12-2020
 
+**how to create yaml file to establish a system**
 
+docker-compose.yml file:
 
+version: "3.8"
+
+services:
+  veritabani:
+    image: mysql:5.7
+    restart: always
+    volumes:
+      - verilerim:/var/lib/mysql
+    environment: 
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    networks: 
+      - wpnet
+  
+  wordpress: 
+    image: wordpress:latest
+    depends_on: 
+      - veritabani
+    restart: always
+    ports: 
+      - "80:80"
+    environment: 
+      WORDPRESS_DB_HOST: veritabani:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_DB_NAME: wordpress 
+    networks: 
+      - wpnet
+
+volumes:
+  verilerim:
+
+networks:
+  wpnet:
+    driver: bridge
+_________
+
+**Lets run this compose**
+
+PS C:\AdanZyeDocker\kisim6\bolum67> docker-compose up -d
+Creating bolum67_veritabani_1 ... done
+Creating bolum67_wordpress_1  ... done
+PS C:\AdanZyeDocker\kisim6\bolum67> docker-compose ps
+The system cannot find the path specified.
+        Name                      Command               State          Ports
+-----------------------------------------------------------------------------------
+bolum67_veritabani_1   docker-entrypoint.sh mysqld      Up      3306/tcp, 33060/tcp
+bolum67_wordpress_1    docker-entrypoint.sh apach ...   Up      0.0.0.0:80->80/tcp
+PS C:\AdanZyeDocker\kisim6\bolum67> docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                 NAMES
+467370755d38        wordpress:latest    "docker-entrypoint.s"   28 seconds ago      Up 29 seconds       0.0.0.0:80->80/tcp    bolum67_wordpress_1
+964ead859ab2        mysql:5.7           "docker-entrypoint.s"   28 seconds ago      Up 29 seconds       3306/tcp, 33060/tcp   bolum67_veritabani_1
+
+PS C:\AdanZyeDocker\kisim6\bolum67> docker-compose down
+Stopping bolum67_wordpress_1  ... done
+Stopping bolum67_veritabani_1 ... done
+Removing bolum67_wordpress_1  ... done
+Removing bolum67_veritabani_1 ... done
+Removing network bolum67_wpnet
+
+PS C:\AdanZyeDocker\kisim6\bolum67> docker volume ls
+DRIVER              VOLUME NAME
+local               alistirma1
+local               alistirma2
+local               bolum67_verilerim
+
+PS C:\AdanZyeDocker\kisim6\bolum67> docker volume rm bolum67_verilerim
+bolum67_verilerim
 
