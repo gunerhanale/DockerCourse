@@ -4641,4 +4641,59 @@ Removing bolum68_websrv_1  ... done
 Removing bolum68_mysqldb_1 ... done
 Removing network bolum68_webnet
 
-**Docker Orchectation **
+_________
+
+
+* ***Docker Orchestration ***
+
+**Docker Swarm**
+
+**Lets establish a cluster using Docker Swarm. We will have 5 node (3 manager,2 worker)**
+
+[node1] (local) root@192.168.0.8 ~
+$ docker swarm init --advertise-addr 192.168.0.8
+
+[node1] (local) root@192.168.0.8 ~
+$ docker info
+
+[node1] (local) root@192.168.0.8 ~
+$ docker swarm join-token manager
+
+[node1] (local) root@192.168.0.8 ~
+$ docker swarm join-token worker
+
+[node1] (local) root@192.168.0.8 ~
+$ docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+7lqelnfj9bpg5lqiifqzszdg2 *   node1      Ready     Active         Leader           20.10.0
+2r8g9eeolxw98mugq2tdy73my     node2      Ready     Active         Reachable        20.10.0
+8991lxnp1vhde1pqkw71du6og     node3      Ready     Active         Reachable        20.10.0
+w5c6pke08zrdt3e0s7txslykt     node4      Ready     Active                          20.10.0
+1cn2xemkdu8yis29cbynlucyo     node5      Ready     Active                          20.10.0
+
+[node1] (local) root@192.168.0.8 ~
+$ docker service create --name test --replicas=5 -p 8080:80 nginx
+miqmqueafwh7d17g6cuk1xq3k
+overall progress: 5 out of 5 tasks 
+1/5: running   [==================================================>] 
+2/5: running   [==================================================>] 
+3/5: running   [==================================================>] 
+4/5: running   [==================================================>] 
+5/5: running   [==================================================>] 
+verify: Service converged 
+[node1] (local) root@192.168.0.8 ~
+
+$ docker service ps test
+ID             NAME      IMAGE          NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+8izcxc1qz6s1   test.1    nginx:latest   node3     Running         Running 20 seconds ago             
+6hz7qtwyoqt7   test.2    nginx:latest   node4     Running         Running 18 seconds ago             
+tsf5d5ihvy4l   test.3    nginx:latest   node5     Running         Running 22 seconds ago             
+itr865jwaqdl   test.4    nginx:latest   node1     Running         Running 18 seconds ago             
+er21mw333s1u   test.5    nginx:latest   node2     Running         Running 20 seconds ago             
+[node1] (local) root@192.168.0.8 ~
+
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS     NAMES
+7d45e6bd5e6c   nginx:latest   "/docker-entrypoint.…"   About a minute ago   Up About a minute   80/tcp    test.4.itr865jwaqdl4a4k14cl3sofz
+
+
