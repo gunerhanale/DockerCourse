@@ -3924,3 +3924,721 @@ local               bolum67_verilerim
 PS C:\AdanZyeDocker\kisim6\bolum67> docker volume rm bolum67_verilerim
 bolum67_verilerim
 
+_________
+
+* ***Docker Compose Build***
+
+**We can use docker-compose file to build image.**
+
+
+docker-compose.yml
+_________
+
+version: '3.7'
+
+services:
+   mysqldb:
+     image: ozgurozturknet/webdb
+     environment:
+      MYSQL_DATABASE: proje
+      MYSQL_USER: projemaster
+      MYSQL_PASSWORD: master1234
+      MYSQL_ROOT_PASSWORD: master1234
+     networks:
+      - webnet
+
+   websrv:
+     build: .
+     depends_on:
+       - mysqldb
+     ports:
+       - "80:80"
+     restart: always
+     networks:
+       - webnet
+     environment:
+       DB_SERVER: mysqldb
+       DB_USERNAME: projemaster
+       DB_PASS: master1234
+       DB_NAME: proje
+networks:
+  webnet:
+    driver: bridge
+_________
+
+Dockerfile
+
+FROM php:7.3-apache
+RUN apt-get update -y && apt-get install mariadb-client-10.3 -y
+RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+RUN mkdir /var/www/html/images
+RUN chmod 777 /var/www/html/images
+COPY ./php/ /var/www/html/
+_________
+
+PS C:\AdanZyeDocker\kisim6\bolum68> docker-compose up
+Creating network "bolum68_webnet" with driver "bridge"
+Building websrv
+Step 1/6 : FROM php:7.3-apache
+7.3-apache: Pulling from library/php
+6ec7b7d162b2: Already exists
+db606474d60c: Already exists
+afb30f0cd8e0: Already exists
+3bb2e8051594: Already exists
+4c761b44e2cc: Already exists
+c2199db96575: Already exists
+1b9a9381eea8: Already exists
+7f24471717dc: Pull complete
+5a6ae2f3533e: Pull complete
+829b3a244ebb: Pull complete
+4e0fdda85420: Pull complete
+b3c1e1a4703e: Pull complete
+4ec16a0a5c33: Pull complete
+3861ba4b3280: Pull complete
+Digest: sha256:3b49947b1f5a2d7c0003f48b8144526fdb7bb0cb4e209f434efd047e298ed464
+Status: Downloaded newer image for php:7.3-apache
+ ---> ddceef02e8b3
+Step 2/6 : RUN apt-get update -y && apt-get install mariadb-client-10.3 -y
+ ---> Running in c6517f295d6f
+Get:1 http://deb.debian.org/debian buster InRelease [121 kB]
+Get:2 http://security.debian.org/debian-security buster/updates InRelease [65.4 kB]
+Get:3 http://deb.debian.org/debian buster-updates InRelease [51.9 kB]
+Get:4 http://security.debian.org/debian-security buster/updates/main amd64 Packages [258 kB]
+Get:5 http://deb.debian.org/debian buster/main amd64 Packages [7907 kB]
+Get:6 http://deb.debian.org/debian buster-updates/main amd64 Packages [7860 B]
+Fetched 8412 kB in 10s (826 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following package was automatically installed and is no longer required:
+  sensible-utils
+Use 'apt autoremove' to remove it.
+The following additional packages will be installed:
+  libaio1 libconfig-inifiles-perl libdbd-mysql-perl libdbi-perl libmariadb3
+  libreadline5 libsnappy1v5 libterm-readkey-perl mariadb-client-core-10.3
+  mariadb-common mysql-common readline-common
+Suggested packages:
+  libclone-perl libmldbm-perl libnet-daemon-perl libsql-statement-perl
+  readline-doc
+The following NEW packages will be installed:
+  libaio1 libconfig-inifiles-perl libdbd-mysql-perl libdbi-perl libmariadb3
+  libreadline5 libsnappy1v5 libterm-readkey-perl mariadb-client-10.3
+  mariadb-client-core-10.3 mariadb-common mysql-common readline-common
+0 upgraded, 13 newly installed, 0 to remove and 1 not upgraded.
+Need to get 8308 kB of archives.
+After this operation, 55.3 MB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian buster/main amd64 readline-common all 7.0-5 [70.6 kB]
+Get:2 http://deb.debian.org/debian buster/main amd64 libaio1 amd64 0.3.112-3 [11.2 kB]
+Get:3 http://deb.debian.org/debian buster/main amd64 libconfig-inifiles-perl all 3.000001-1 [51.9 kB]
+Get:4 http://deb.debian.org/debian buster/main amd64 libdbi-perl amd64 1.642-1+deb10u1 [775 kB]
+Get:5 http://deb.debian.org/debian buster/main amd64 mysql-common all 5.8+1.0.5 [7324 B]
+Get:6 http://deb.debian.org/debian buster/main amd64 mariadb-common all 1:10.3.27-0+deb10u1 [32.2 kB]
+Get:7 http://deb.debian.org/debian buster/main amd64 libmariadb3 amd64 1:10.3.27-0+deb10u1 [171 kB]
+Get:8 http://deb.debian.org/debian buster/main amd64 libdbd-mysql-perl amd64 4.050-2 [121 kB]
+Get:9 http://deb.debian.org/debian buster/main amd64 libreadline5 amd64 5.2+dfsg-3+b13 [120 kB]
+Get:10 http://deb.debian.org/debian buster/main amd64 libsnappy1v5 amd64 1.1.7-1 [17.0 kB]
+Get:11 http://deb.debian.org/debian buster/main amd64 libterm-readkey-perl amd64 2.38-1 [27.4 kB]
+Get:12 http://deb.debian.org/debian buster/main amd64 mariadb-client-core-10.3 amd64 1:10.3.27-0+deb10u1 [5763 kB]
+Get:13 http://deb.debian.org/debian buster/main amd64 mariadb-client-10.3 amd64 1:10.3.27-0+deb10u1 [1141 kB]
+debconf: delaying package configuration, since apt-utils is not installed
+Fetched 8308 kB in 3s (2979 kB/s)
+Selecting previously unselected package readline-common.
+(Reading database ... 13530 files and directories currently installed.)
+Preparing to unpack .../00-readline-common_7.0-5_all.deb ...
+Unpacking readline-common (7.0-5) ...
+Selecting previously unselected package libaio1:amd64.
+Preparing to unpack .../01-libaio1_0.3.112-3_amd64.deb ...
+Unpacking libaio1:amd64 (0.3.112-3) ...
+Selecting previously unselected package libconfig-inifiles-perl.
+Preparing to unpack .../02-libconfig-inifiles-perl_3.000001-1_all.deb ...
+Unpacking libconfig-inifiles-perl (3.000001-1) ...
+Selecting previously unselected package libdbi-perl:amd64.
+Preparing to unpack .../03-libdbi-perl_1.642-1+deb10u1_amd64.deb ...
+Unpacking libdbi-perl:amd64 (1.642-1+deb10u1) ...
+Selecting previously unselected package mysql-common.
+Preparing to unpack .../04-mysql-common_5.8+1.0.5_all.deb ...
+Unpacking mysql-common (5.8+1.0.5) ...
+Selecting previously unselected package mariadb-common.
+Preparing to unpack .../05-mariadb-common_1%3a10.3.27-0+deb10u1_all.deb ...
+Unpacking mariadb-common (1:10.3.27-0+deb10u1) ...
+Selecting previously unselected package libmariadb3:amd64.
+Preparing to unpack .../06-libmariadb3_1%3a10.3.27-0+deb10u1_amd64.deb ...
+Unpacking libmariadb3:amd64 (1:10.3.27-0+deb10u1) ...
+Selecting previously unselected package libdbd-mysql-perl:amd64.
+Preparing to unpack .../07-libdbd-mysql-perl_4.050-2_amd64.deb ...
+Unpacking libdbd-mysql-perl:amd64 (4.050-2) ...
+Selecting previously unselected package libreadline5:amd64.
+Preparing to unpack .../08-libreadline5_5.2+dfsg-3+b13_amd64.deb ...
+Unpacking libreadline5:amd64 (5.2+dfsg-3+b13) ...
+Selecting previously unselected package libsnappy1v5:amd64.
+Preparing to unpack .../09-libsnappy1v5_1.1.7-1_amd64.deb ...
+Unpacking libsnappy1v5:amd64 (1.1.7-1) ...
+Selecting previously unselected package libterm-readkey-perl.
+Preparing to unpack .../10-libterm-readkey-perl_2.38-1_amd64.deb ...
+Unpacking libterm-readkey-perl (2.38-1) ...
+Selecting previously unselected package mariadb-client-core-10.3.
+Preparing to unpack .../11-mariadb-client-core-10.3_1%3a10.3.27-0+deb10u1_amd64.deb ...
+Unpacking mariadb-client-core-10.3 (1:10.3.27-0+deb10u1) ...
+Selecting previously unselected package mariadb-client-10.3.
+Preparing to unpack .../12-mariadb-client-10.3_1%3a10.3.27-0+deb10u1_amd64.deb ...
+Unpacking mariadb-client-10.3 (1:10.3.27-0+deb10u1) ...
+Setting up libconfig-inifiles-perl (3.000001-1) ...
+Setting up mysql-common (5.8+1.0.5) ...
+update-alternatives: using /etc/mysql/my.cnf.fallback to provide /etc/mysql/my.cnf (my.cnf) in auto mode
+Setting up libsnappy1v5:amd64 (1.1.7-1) ...
+Setting up mariadb-common (1:10.3.27-0+deb10u1) ...
+update-alternatives: using /etc/mysql/mariadb.cnf to provide /etc/mysql/my.cnf (my.cnf) in auto mode
+Setting up libmariadb3:amd64 (1:10.3.27-0+deb10u1) ...
+Setting up libterm-readkey-perl (2.38-1) ...
+Setting up libaio1:amd64 (0.3.112-3) ...
+Setting up readline-common (7.0-5) ...
+Setting up libdbi-perl:amd64 (1.642-1+deb10u1) ...
+Setting up libreadline5:amd64 (5.2+dfsg-3+b13) ...
+Setting up libdbd-mysql-perl:amd64 (4.050-2) ...
+Setting up mariadb-client-core-10.3 (1:10.3.27-0+deb10u1) ...
+Setting up mariadb-client-10.3 (1:10.3.27-0+deb10u1) ...
+Processing triggers for libc-bin (2.28-10) ...
+Removing intermediate container c6517f295d6f
+ ---> ccaf786d5061
+Step 3/6 : RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+ ---> Running in 2cc9f8f90440
+Configuring for:
+PHP Api Version:         20180731
+Zend Module Api No:      20180731
+Zend Extension Api No:   320180731
+checking for grep that handles long lines and -e... /bin/grep
+checking for egrep... /bin/grep -E
+checking for a sed that does not truncate output... /bin/sed
+checking for cc... cc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables...
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether cc accepts -g... yes
+checking for cc option to accept ISO C89... none needed
+checking how to run the C preprocessor... cc -E
+checking for icc... no
+checking for suncc... no
+checking whether cc understands -c and -o together... yes
+checking for system library directory... lib
+checking if compiler supports -R... no
+checking if compiler supports -Wl,-rpath,... yes
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... x86_64-pc-linux-gnu
+checking target system type... x86_64-pc-linux-gnu
+checking for PHP prefix... /usr/local
+checking for PHP includes... -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib
+checking for PHP extension directory... /usr/local/lib/php/extensions/no-debug-non-zts-20180731
+checking for PHP installed headers prefix... /usr/local/include/php
+checking if debug is enabled... no
+checking if zts is enabled... no
+checking for re2c... re2c
+checking for re2c version... 1.1.1 (ok)
+checking for gawk... no
+checking for nawk... nawk
+checking if nawk is broken... no
+checking for MySQLi support... yes, shared
+checking whether to enable embedded MySQLi support... no
+checking for specified location of the MySQL UNIX socket... no
+checking for MySQL UNIX socket location... no
+checking for ld used by cc... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for /usr/bin/ld option to reload object files... -r
+checking for BSD-compatible nm... /usr/bin/nm -B
+checking whether ln -s works... yes
+checking how to recognize dependent libraries... pass_all
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking dlfcn.h usability... yes
+checking dlfcn.h presence... yes
+checking for dlfcn.h... yes
+checking the maximum length of command line arguments... 1572864
+checking command to parse /usr/bin/nm -B output from cc object... ok
+checking for objdir... .libs
+checking for ar... ar
+checking for ranlib... ranlib
+checking for strip... strip
+checking if cc supports -fno-rtti -fno-exceptions... no
+checking for cc option to produce PIC... -fPIC
+checking if cc PIC flag -fPIC works... yes
+checking if cc static flag -static works... yes
+checking if cc supports -c -o file.o... yes
+checking whether the cc linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... no
+
+creating libtool
+appending configuration tag "CXX" to libtool
+configure: creating ./config.status
+config.status: creating config.h
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=compile cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64   -c /usr/src/php/ext/mysqli/mysqli.c -o mysqli.lo
+mkdir .libs
+ cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -c /usr/src/php/ext/mysqli/mysqli.c  -fPIC -DPIC -o .libs/mysqli.o
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=compile cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64   -c /usr/src/php/ext/mysqli/mysqli_api.c -o mysqli_api.lo
+ cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -c /usr/src/php/ext/mysqli/mysqli_api.c  -fPIC -DPIC -o .libs/mysqli_api.o
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=compile cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64   -c /usr/src/php/ext/mysqli/mysqli_prop.c -o mysqli_prop.lo
+ cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -c /usr/src/php/ext/mysqli/mysqli_prop.c  -fPIC -DPIC -o .libs/mysqli_prop.o
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=compile cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64   -c /usr/src/php/ext/mysqli/mysqli_nonapi.c -o mysqli_nonapi.lo
+ cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -c /usr/src/php/ext/mysqli/mysqli_nonapi.c  -fPIC -DPIC -o .libs/mysqli_nonapi.o
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=compile cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64   -c /usr/src/php/ext/mysqli/mysqli_fe.c -o mysqli_fe.lo
+ cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -c /usr/src/php/ext/mysqli/mysqli_fe.c  -fPIC -DPIC -o .libs/mysqli_fe.o
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=compile cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64   -c /usr/src/php/ext/mysqli/mysqli_report.c -o mysqli_report.lo
+ cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -c /usr/src/php/ext/mysqli/mysqli_report.c  -fPIC -DPIC -o .libs/mysqli_report.o
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=compile cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64   -c /usr/src/php/ext/mysqli/mysqli_driver.c -o mysqli_driver.lo
+ cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -c /usr/src/php/ext/mysqli/mysqli_driver.c  -fPIC -DPIC -o .libs/mysqli_driver.o
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=compile cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64   -c /usr/src/php/ext/mysqli/mysqli_warning.c -o mysqli_warning.lo
+ cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -c /usr/src/php/ext/mysqli/mysqli_warning.c  -fPIC -DPIC -o .libs/mysqli_warning.o
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=compile cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64   -c /usr/src/php/ext/mysqli/mysqli_exception.c -o mysqli_exception.lo
+ cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -c /usr/src/php/ext/mysqli/mysqli_exception.c  -fPIC -DPIC -o .libs/mysqli_exception.o
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=compile cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64   -c /usr/src/php/ext/mysqli/mysqli_result_iterator.c -o mysqli_result_iterator.lo
+ cc -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -I. -I/usr/src/php/ext/mysqli -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -c /usr/src/php/ext/mysqli/mysqli_result_iterator.c  -fPIC -DPIC -o .libs/mysqli_result_iterator.o
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=link cc -DPHP_ATOM_INC -I/usr/src/php/ext/mysqli/include -I/usr/src/php/ext/mysqli/main -I/usr/src/php/ext/mysqli -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CONFIG_H  -fstack-protector-strong -fpic -fpie -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64  -Wl,-O1 -pie  -o mysqli.la -export-dynamic -avoid-version -prefer-pic -module -rpath /usr/src/php/ext/mysqli/modules  mysqli.lo mysqli_api.lo mysqli_prop.lo mysqli_nonapi.lo mysqli_fe.lo mysqli_report.lo mysqli_driver.lo mysqli_warning.lo mysqli_exception.lo mysqli_result_iterator.lo
+cc -shared  .libs/mysqli.o .libs/mysqli_api.o .libs/mysqli_prop.o .libs/mysqli_nonapi.o .libs/mysqli_fe.o .libs/mysqli_report.o .libs/mysqli_driver.o .libs/mysqli_warning.o .libs/mysqli_exception.o .libs/mysqli_result_iterator.o   -Wl,-O1 -Wl,-soname -Wl,mysqli.so -o .libs/mysqli.so
+creating mysqli.la
+(cd .libs && rm -f mysqli.la && ln -s ../mysqli.la mysqli.la)
+/bin/bash /usr/src/php/ext/mysqli/libtool --mode=install cp ./mysqli.la /usr/src/php/ext/mysqli/modules
+cp ./.libs/mysqli.so /usr/src/php/ext/mysqli/modules/mysqli.so
+cp ./.libs/mysqli.lai /usr/src/php/ext/mysqli/modules/mysqli.la
+PATH="$PATH:/sbin" ldconfig -n /usr/src/php/ext/mysqli/modules
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /usr/src/php/ext/mysqli/modules
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the `-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the `LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the `LD_RUN_PATH' environment variable
+     during linking
+   - use the `-Wl,--rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+
+Build complete.
+Don't forget to run 'make test'.
+
+Installing shared extensions:     /usr/local/lib/php/extensions/no-debug-non-zts-20180731/
+Installing header files:          /usr/local/include/php/
+find . -name \*.gcno -o -name \*.gcda | xargs rm -f
+find . -name \*.lo -o -name \*.o | xargs rm -f
+find . -name \*.la -o -name \*.a | xargs rm -f
+find . -name \*.so | xargs rm -f
+find . -name .libs -a -type d|xargs rm -rf
+rm -f libphp.la      modules/* libs/*
+
+warning: mysqli (mysqli) is already loaded!
+
+Removing intermediate container 2cc9f8f90440
+ ---> 9a21e9ff2f72
+Step 4/6 : RUN mkdir /var/www/html/images
+ ---> Running in c94e6dedc05b
+Removing intermediate container c94e6dedc05b
+ ---> 398e48ed6b74
+Step 5/6 : RUN chmod 777 /var/www/html/images
+ ---> Running in c6c84fd217ad
+Removing intermediate container c6c84fd217ad
+ ---> b9435bb4b7be
+Step 6/6 : COPY ./php/ /var/www/html/
+ ---> 52355dc07b4f
+
+Successfully built 52355dc07b4f
+Successfully tagged bolum68_websrv:latest
+WARNING: Image for service websrv was built because it did not already exist. To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
+Creating bolum68_mysqldb_1 ... done
+Creating bolum68_websrv_1  ... done
+Attaching to bolum68_mysqldb_1, bolum68_websrv_1
+mysqldb_1  | 2020-12-31 12:38:35+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 5.7.28-1debian9 started.
+mysqldb_1  | 2020-12-31 12:38:35+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+mysqldb_1  | 2020-12-31 12:38:35+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 5.7.28-1debian9 started.
+mysqldb_1  | 2020-12-31 12:38:36+00:00 [Note] [Entrypoint]: Initializing database files
+websrv_1   | AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.20.0.3. Set the 'ServerName' directive globally to suppress this message
+websrv_1   | AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.20.0.3. Set the 'ServerName' directive globally to suppress this message
+websrv_1   | [Thu Dec 31 12:38:36.260989 2020] [mpm_prefork:notice] [pid 1] AH00163: Apache/2.4.38 (Debian) PHP/7.3.25 configured -- resuming normal operations
+mysqldb_1  | 2020-12-31T12:38:36.106042Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation for more details).
+mysqldb_1  | 2020-12-31T12:38:36.461949Z 0 [Warning] InnoDB: New log files created, LSN=45790
+mysqldb_1  | 2020-12-31T12:38:36.530371Z 0 [Warning] InnoDB: Creating foreign key constraint system tables.
+mysqldb_1  | 2020-12-31T12:38:36.704007Z 0 [Warning] No existing UUID has been found, so we assume that this is the first time that this server has been started. Generating a new UUID: 1a2058e9-4b65-11eb-95c3-0242ac140002.
+mysqldb_1  | 2020-12-31T12:38:36.705570Z 0 [Warning] Gtid table is not ready to be used. Table 'mysql.gtid_executed' cannot be opened.
+mysqldb_1  | 2020-12-31T12:38:37.394427Z 0 [Warning] CA certificate ca.pem is self signed.
+mysqldb_1  | 2020-12-31T12:38:38.076353Z 1 [Warning] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
+mysqldb_1  | 2020-12-31 12:38:40+00:00 [Note] [Entrypoint]: Database files initialized
+mysqldb_1  | 2020-12-31 12:38:40+00:00 [Note] [Entrypoint]: Starting temporary server
+mysqldb_1  | 2020-12-31 12:38:40+00:00 [Note] [Entrypoint]: Waiting for server startup
+mysqldb_1  | 2020-12-31T12:38:40.745875Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation for more details).
+mysqldb_1  | 2020-12-31T12:38:40.748069Z 0 [Note] mysqld (mysqld 5.7.28) starting as process 79 ...
+mysqldb_1  | 2020-12-31T12:38:40.766474Z 0 [Note] InnoDB: PUNCH HOLE support available
+mysqldb_1  | 2020-12-31T12:38:40.766508Z 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+mysqldb_1  | 2020-12-31T12:38:40.766515Z 0 [Note] InnoDB: Uses event mutexes
+mysqldb_1  | 2020-12-31T12:38:40.766521Z 0 [Note] InnoDB: GCC builtin __atomic_thread_fence() is used for memory barrier
+mysqldb_1  | 2020-12-31T12:38:40.766526Z 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+mysqldb_1  | 2020-12-31T12:38:40.766531Z 0 [Note] InnoDB: Using Linux native AIO
+mysqldb_1  | 2020-12-31T12:38:40.768510Z 0 [Note] InnoDB: Number of pools: 1
+mysqldb_1  | 2020-12-31T12:38:40.793470Z 0 [Note] InnoDB: Using CPU crc32 instructions
+mysqldb_1  | 2020-12-31T12:38:40.811271Z 0 [Note] InnoDB: Initializing buffer pool, total size = 128M, instances = 1, chunk size = 128M
+mysqldb_1  | 2020-12-31T12:38:40.855485Z 0 [Note] InnoDB: Completed initialization of buffer pool
+mysqldb_1  | 2020-12-31T12:38:40.869064Z 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+mysqldb_1  | 2020-12-31T12:38:40.888250Z 0 [Note] InnoDB: Highest supported file format is Barracuda.
+mysqldb_1  | 2020-12-31T12:38:40.919842Z 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+mysqldb_1  | 2020-12-31T12:38:40.920250Z 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+mysqldb_1  | 2020-12-31T12:38:40.964651Z 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+mysqldb_1  | 2020-12-31T12:38:40.969635Z 0 [Note] InnoDB: 96 redo rollback segment(s) found. 96 redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-31T12:38:40.975564Z 0 [Note] InnoDB: 32 non-redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-31T12:38:40.976624Z 0 [Note] InnoDB: Waiting for purge to start
+mysqldb_1  | 2020-12-31T12:38:41.027625Z 0 [Note] InnoDB: 5.7.28 started; log sequence number 2628227
+mysqldb_1  | 2020-12-31T12:38:41.028550Z 0 [Note] Plugin 'FEDERATED' is disabled.
+mysqldb_1  | 2020-12-31T12:38:41.034923Z 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+mysqldb_1  | 2020-12-31T12:38:41.058445Z 0 [Note] InnoDB: Buffer pool(s) load completed at 201231 12:38:41
+mysqldb_1  | 2020-12-31T12:38:41.067046Z 0 [Note] Found ca.pem, server-cert.pem and server-key.pem in data directory. Trying to enable SSL support using them.
+mysqldb_1  | 2020-12-31T12:38:41.067454Z 0 [Note] Skipping generation of SSL certificates as certificate files are present in data directory.
+mysqldb_1  | 2020-12-31T12:38:41.068852Z 0 [Warning] CA certificate ca.pem is self signed.
+mysqldb_1  | 2020-12-31T12:38:41.070728Z 0 [Note] Skipping generation of RSA key pair as key files are present in data directory.
+mysqldb_1  | 2020-12-31T12:38:41.085272Z 0 [Warning] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysqldb_1  | 2020-12-31T12:38:41.114900Z 0 [Note] Event Scheduler: Loaded 0 events
+mysqldb_1  | 2020-12-31T12:38:41.115506Z 0 [Note] mysqld: ready for connections.
+mysqldb_1  | Version: '5.7.28'  socket: '/var/run/mysqld/mysqld.sock'  port: 0  MySQL Community Server (GPL)
+mysqldb_1  | 2020-12-31 12:38:41+00:00 [Note] [Entrypoint]: Temporary server started.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/iso3166.tab' as time zone. Skipping it.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/leap-seconds.list' as time zone. Skipping it.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/zone.tab' as time zone. Skipping it.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/zone1970.tab' as time zone. Skipping it.
+mysqldb_1  | 2020-12-31 12:38:44+00:00 [Note] [Entrypoint]: Creating database proje
+mysqldb_1  | 2020-12-31 12:38:44+00:00 [Note] [Entrypoint]: Creating user projemaster
+mysqldb_1  | 2020-12-31 12:38:44+00:00 [Note] [Entrypoint]: Giving user projemaster access to schema proje
+mysqldb_1  |
+mysqldb_1  | 2020-12-31 12:38:44+00:00 [Note] [Entrypoint]: /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/tabloyarat.sql
+mysqldb_1  |
+mysqldb_1  |
+mysqldb_1  | 2020-12-31 12:38:44+00:00 [Note] [Entrypoint]: Stopping temporary server
+mysqldb_1  | 2020-12-31T12:38:44.963459Z 0 [Note] Giving 0 client threads a chance to die gracefully
+mysqldb_1  | 2020-12-31T12:38:44.963802Z 0 [Note] Shutting down slave threads
+mysqldb_1  | 2020-12-31T12:38:44.964249Z 0 [Note] Forcefully disconnecting 0 remaining clients
+mysqldb_1  | 2020-12-31T12:38:44.964610Z 0 [Note] Event Scheduler: Purging the queue. 0 events
+mysqldb_1  | 2020-12-31T12:38:44.965141Z 0 [Note] Binlog end
+mysqldb_1  | 2020-12-31T12:38:44.982051Z 0 [Note] Shutting down plugin 'ngram'
+mysqldb_1  | 2020-12-31T12:38:44.989192Z 0 [Note] Shutting down plugin 'partition'
+mysqldb_1  | 2020-12-31T12:38:44.989552Z 0 [Note] Shutting down plugin 'BLACKHOLE'
+mysqldb_1  | 2020-12-31T12:38:44.990259Z 0 [Note] Shutting down plugin 'ARCHIVE'
+mysqldb_1  | 2020-12-31T12:38:44.990512Z 0 [Note] Shutting down plugin 'PERFORMANCE_SCHEMA'
+mysqldb_1  | 2020-12-31T12:38:44.990623Z 0 [Note] Shutting down plugin 'MRG_MYISAM'
+mysqldb_1  | 2020-12-31T12:38:44.991558Z 0 [Note] Shutting down plugin 'MyISAM'
+mysqldb_1  | 2020-12-31T12:38:44.991912Z 0 [Note] Shutting down plugin 'INNODB_SYS_VIRTUAL'
+mysqldb_1  | 2020-12-31T12:38:44.992319Z 0 [Note] Shutting down plugin 'INNODB_SYS_DATAFILES'
+mysqldb_1  | 2020-12-31T12:38:44.992378Z 0 [Note] Shutting down plugin 'INNODB_SYS_TABLESPACES'
+mysqldb_1  | 2020-12-31T12:38:44.992399Z 0 [Note] Shutting down plugin 'INNODB_SYS_FOREIGN_COLS'
+mysqldb_1  | 2020-12-31T12:38:44.992415Z 0 [Note] Shutting down plugin 'INNODB_SYS_FOREIGN'
+mysqldb_1  | 2020-12-31T12:38:44.992431Z 0 [Note] Shutting down plugin 'INNODB_SYS_FIELDS'
+mysqldb_1  | 2020-12-31T12:38:44.992447Z 0 [Note] Shutting down plugin 'INNODB_SYS_COLUMNS'
+mysqldb_1  | 2020-12-31T12:38:44.992464Z 0 [Note] Shutting down plugin 'INNODB_SYS_INDEXES'
+mysqldb_1  | 2020-12-31T12:38:44.992479Z 0 [Note] Shutting down plugin 'INNODB_SYS_TABLESTATS'
+mysqldb_1  | 2020-12-31T12:38:44.992495Z 0 [Note] Shutting down plugin 'INNODB_SYS_TABLES'
+mysqldb_1  | 2020-12-31T12:38:44.992511Z 0 [Note] Shutting down plugin 'INNODB_FT_INDEX_TABLE'
+mysqldb_1  | 2020-12-31T12:38:44.992527Z 0 [Note] Shutting down plugin 'INNODB_FT_INDEX_CACHE'
+mysqldb_1  | 2020-12-31T12:38:44.992543Z 0 [Note] Shutting down plugin 'INNODB_FT_CONFIG'
+mysqldb_1  | 2020-12-31T12:38:44.992563Z 0 [Note] Shutting down plugin 'INNODB_FT_BEING_DELETED'
+mysqldb_1  | 2020-12-31T12:38:44.992590Z 0 [Note] Shutting down plugin 'INNODB_FT_DELETED'
+mysqldb_1  | 2020-12-31T12:38:44.992608Z 0 [Note] Shutting down plugin 'INNODB_FT_DEFAULT_STOPWORD'
+mysqldb_1  | 2020-12-31T12:38:44.992623Z 0 [Note] Shutting down plugin 'INNODB_METRICS'
+mysqldb_1  | 2020-12-31T12:38:45.009780Z 0 [Note] Shutting down plugin 'INNODB_TEMP_TABLE_INFO'
+mysqldb_1  | 2020-12-31T12:38:45.014879Z 0 [Note] Shutting down plugin 'INNODB_BUFFER_POOL_STATS'
+mysqldb_1  | 2020-12-31T12:38:45.027485Z 0 [Note] Shutting down plugin 'INNODB_BUFFER_PAGE_LRU'
+mysqldb_1  | 2020-12-31T12:38:45.027655Z 0 [Note] Shutting down plugin 'INNODB_BUFFER_PAGE'
+mysqldb_1  | 2020-12-31T12:38:45.027892Z 0 [Note] Shutting down plugin 'INNODB_CMP_PER_INDEX_RESET'
+mysqldb_1  | 2020-12-31T12:38:45.028167Z 0 [Note] Shutting down plugin 'INNODB_CMP_PER_INDEX'
+mysqldb_1  | 2020-12-31T12:38:45.028273Z 0 [Note] Shutting down plugin 'INNODB_CMPMEM_RESET'
+mysqldb_1  | 2020-12-31T12:38:45.028539Z 0 [Note] Shutting down plugin 'INNODB_CMPMEM'
+mysqldb_1  | 2020-12-31T12:38:45.028813Z 0 [Note] Shutting down plugin 'INNODB_CMP_RESET'
+mysqldb_1  | 2020-12-31T12:38:45.032338Z 0 [Note] Shutting down plugin 'INNODB_CMP'
+mysqldb_1  | 2020-12-31T12:38:45.033325Z 0 [Note] Shutting down plugin 'INNODB_LOCK_WAITS'
+mysqldb_1  | 2020-12-31T12:38:45.033515Z 0 [Note] Shutting down plugin 'INNODB_LOCKS'
+mysqldb_1  | 2020-12-31T12:38:45.033817Z 0 [Note] Shutting down plugin 'INNODB_TRX'
+mysqldb_1  | 2020-12-31T12:38:45.033950Z 0 [Note] Shutting down plugin 'InnoDB'
+mysqldb_1  | 2020-12-31T12:38:45.036270Z 0 [Note] InnoDB: FTS optimize thread exiting.
+mysqldb_1  | 2020-12-31T12:38:45.038977Z 0 [Note] InnoDB: Starting shutdown...
+mysqldb_1  | 2020-12-31T12:38:45.147417Z 0 [Note] InnoDB: Dumping buffer pool(s) to /var/lib/mysql/ib_buffer_pool
+mysqldb_1  | 2020-12-31T12:38:45.159730Z 0 [Note] InnoDB: Buffer pool(s) dump completed at 201231 12:38:45
+mysqldb_1  | 2020-12-31T12:38:46.891921Z 0 [Note] InnoDB: Shutdown completed; log sequence number 12444399
+mysqldb_1  | 2020-12-31T12:38:46.894954Z 0 [Note] InnoDB: Removed temporary tablespace data file: "ibtmp1"
+mysqldb_1  | 2020-12-31T12:38:46.895580Z 0 [Note] Shutting down plugin 'MEMORY'
+mysqldb_1  | 2020-12-31T12:38:46.895914Z 0 [Note] Shutting down plugin 'CSV'
+mysqldb_1  | 2020-12-31T12:38:46.896519Z 0 [Note] Shutting down plugin 'sha256_password'
+mysqldb_1  | 2020-12-31T12:38:46.897015Z 0 [Note] Shutting down plugin 'mysql_native_password'
+mysqldb_1  | 2020-12-31T12:38:46.910450Z 0 [Note] Shutting down plugin 'binlog'
+mysqldb_1  | 2020-12-31T12:38:46.930912Z 0 [Note] mysqld: Shutdown complete
+mysqldb_1  |
+mysqldb_1  | 2020-12-31 12:38:46+00:00 [Note] [Entrypoint]: Temporary server stopped
+mysqldb_1  |
+mysqldb_1  | 2020-12-31 12:38:47+00:00 [Note] [Entrypoint]: MySQL init process done. Ready for start up.
+mysqldb_1  |
+mysqldb_1  | 2020-12-31T12:38:47.267298Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation for more details).
+mysqldb_1  | 2020-12-31T12:38:47.270612Z 0 [Note] mysqld (mysqld 5.7.28) starting as process 1 ...
+mysqldb_1  | 2020-12-31T12:38:47.276616Z 0 [Note] InnoDB: PUNCH HOLE support available
+mysqldb_1  | 2020-12-31T12:38:47.278715Z 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+mysqldb_1  | 2020-12-31T12:38:47.280323Z 0 [Note] InnoDB: Uses event mutexes
+mysqldb_1  | 2020-12-31T12:38:47.280733Z 0 [Note] InnoDB: GCC builtin __atomic_thread_fence() is used for memory barrier
+mysqldb_1  | 2020-12-31T12:38:47.280982Z 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+mysqldb_1  | 2020-12-31T12:38:47.281535Z 0 [Note] InnoDB: Using Linux native AIO
+mysqldb_1  | 2020-12-31T12:38:47.289691Z 0 [Note] InnoDB: Number of pools: 1
+mysqldb_1  | 2020-12-31T12:38:47.297037Z 0 [Note] InnoDB: Using CPU crc32 instructions
+mysqldb_1  | 2020-12-31T12:38:47.331236Z 0 [Note] InnoDB: Initializing buffer pool, total size = 128M, instances = 1, chunk size = 128M
+mysqldb_1  | 2020-12-31T12:38:47.372996Z 0 [Note] InnoDB: Completed initialization of buffer pool
+mysqldb_1  | 2020-12-31T12:38:47.380871Z 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+mysqldb_1  | 2020-12-31T12:38:47.392881Z 0 [Note] InnoDB: Highest supported file format is Barracuda.
+mysqldb_1  | 2020-12-31T12:38:47.412318Z 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+mysqldb_1  | 2020-12-31T12:38:47.412812Z 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+mysqldb_1  | 2020-12-31T12:38:47.460361Z 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+mysqldb_1  | 2020-12-31T12:38:47.462305Z 0 [Note] InnoDB: 96 redo rollback segment(s) found. 96 redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-31T12:38:47.462771Z 0 [Note] InnoDB: 32 non-redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-31T12:38:47.468917Z 0 [Note] InnoDB: 5.7.28 started; log sequence number 12444399
+mysqldb_1  | 2020-12-31T12:38:47.473227Z 0 [Note] Plugin 'FEDERATED' is disabled.
+mysqldb_1  | 2020-12-31T12:38:47.477737Z 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+mysqldb_1  | 2020-12-31T12:38:47.520070Z 0 [Note] InnoDB: Buffer pool(s) load completed at 201231 12:38:47
+mysqldb_1  | 2020-12-31T12:38:47.527023Z 0 [Note] Found ca.pem, server-cert.pem and server-key.pem in data directory. Trying to enable SSL support using them.
+mysqldb_1  | 2020-12-31T12:38:47.527463Z 0 [Note] Skipping generation of SSL certificates as certificate files are present in data directory.
+mysqldb_1  | 2020-12-31T12:38:47.542045Z 0 [Warning] CA certificate ca.pem is self signed.
+mysqldb_1  | 2020-12-31T12:38:47.543397Z 0 [Note] Skipping generation of RSA key pair as key files are present in data directory.
+mysqldb_1  | 2020-12-31T12:38:47.557247Z 0 [Note] Server hostname (bind-address): '*'; port: 3306
+mysqldb_1  | 2020-12-31T12:38:47.559995Z 0 [Note] IPv6 is available.
+mysqldb_1  | 2020-12-31T12:38:47.562644Z 0 [Note]   - '::' resolves to '::';
+mysqldb_1  | 2020-12-31T12:38:47.575286Z 0 [Note] Server socket created on IP: '::'.
+mysqldb_1  | 2020-12-31T12:38:47.587593Z 0 [Warning] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysqldb_1  | 2020-12-31T12:38:47.623776Z 0 [Note] Event Scheduler: Loaded 0 events
+Gracefully stopping... (press Ctrl+C again to force)
+Stopping bolum68_websrv_1  ... done
+Stopping bolum68_mysqldb_1 ... done
+
+PS C:\AdanZyeDocker\kisim6\bolum68> docker-compose down
+Removing bolum68_websrv_1  ... done
+Removing bolum68_mysqldb_1 ... done
+Removing network bolum68_webnet
+
+**Image file build just one time when we run up command. If we need to update image we must build it before.**
+
+PS C:\AdanZyeDocker\kisim6\bolum68> docker-compose up
+Creating network "bolum68_webnet" with driver "bridge"
+Creating bolum68_mysqldb_1 ... done
+Creating bolum68_websrv_1  ... done
+Attaching to bolum68_mysqldb_1, bolum68_websrv_1
+mysqldb_1  | 2020-12-31 12:39:39+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 5.7.28-1debian9 started.
+mysqldb_1  | 2020-12-31 12:39:39+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+mysqldb_1  | 2020-12-31 12:39:39+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 5.7.28-1debian9 started.
+mysqldb_1  | 2020-12-31 12:39:39+00:00 [Note] [Entrypoint]: Initializing database files
+websrv_1   | AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.21.0.3. Set the 'ServerName' directive globally to suppress this message
+mysqldb_1  | 2020-12-31T12:39:39.719817Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation for more details).
+websrv_1   | AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.21.0.3. Set the 'ServerName' directive globally to suppress this message
+websrv_1   | [Thu Dec 31 12:39:40.276369 2020] [mpm_prefork:notice] [pid 1] AH00163: Apache/2.4.38 (Debian) PHP/7.3.25 configured -- resuming normal operations
+mysqldb_1  | 2020-12-31T12:39:40.253692Z 0 [Warning] InnoDB: New log files created, LSN=45790
+mysqldb_1  | 2020-12-31T12:39:40.333463Z 0 [Warning] InnoDB: Creating foreign key constraint system tables.
+mysqldb_1  | 2020-12-31T12:39:40.396278Z 0 [Warning] No existing UUID has been found, so we assume that this is the first time that this server has been started. Generating a new UUID: 401704e6-4b65-11eb-bfc4-0242ac150002.
+mysqldb_1  | 2020-12-31T12:39:40.401259Z 0 [Warning] Gtid table is not ready to be used. Table 'mysql.gtid_executed' cannot be opened.
+mysqldb_1  | 2020-12-31T12:39:41.270088Z 0 [Warning] CA certificate ca.pem is self signed.
+mysqldb_1  | 2020-12-31T12:39:41.517655Z 1 [Warning] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
+mysqldb_1  | 2020-12-31 12:39:43+00:00 [Note] [Entrypoint]: Database files initialized
+mysqldb_1  | 2020-12-31 12:39:43+00:00 [Note] [Entrypoint]: Starting temporary server
+mysqldb_1  | 2020-12-31 12:39:43+00:00 [Note] [Entrypoint]: Waiting for server startup
+mysqldb_1  | 2020-12-31T12:39:43.899881Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation for more details).
+mysqldb_1  | 2020-12-31T12:39:43.903217Z 0 [Note] mysqld (mysqld 5.7.28) starting as process 78 ...
+mysqldb_1  | 2020-12-31T12:39:43.913465Z 0 [Note] InnoDB: PUNCH HOLE support available
+mysqldb_1  | 2020-12-31T12:39:43.913987Z 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+mysqldb_1  | 2020-12-31T12:39:43.914837Z 0 [Note] InnoDB: Uses event mutexes
+mysqldb_1  | 2020-12-31T12:39:43.916109Z 0 [Note] InnoDB: GCC builtin __atomic_thread_fence() is used for memory barrier
+mysqldb_1  | 2020-12-31T12:39:43.920062Z 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+mysqldb_1  | 2020-12-31T12:39:43.920732Z 0 [Note] InnoDB: Using Linux native AIO
+mysqldb_1  | 2020-12-31T12:39:43.938983Z 0 [Note] InnoDB: Number of pools: 1
+mysqldb_1  | 2020-12-31T12:39:43.942665Z 0 [Note] InnoDB: Using CPU crc32 instructions
+mysqldb_1  | 2020-12-31T12:39:43.979573Z 0 [Note] InnoDB: Initializing buffer pool, total size = 128M, instances = 1, chunk size = 128M
+mysqldb_1  | 2020-12-31T12:39:44.003090Z 0 [Note] InnoDB: Completed initialization of buffer pool
+mysqldb_1  | 2020-12-31T12:39:44.016984Z 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+mysqldb_1  | 2020-12-31T12:39:44.037698Z 0 [Note] InnoDB: Highest supported file format is Barracuda.
+mysqldb_1  | 2020-12-31T12:39:44.074039Z 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+mysqldb_1  | 2020-12-31T12:39:44.074498Z 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+mysqldb_1  | 2020-12-31T12:39:44.124149Z 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+mysqldb_1  | 2020-12-31T12:39:44.125906Z 0 [Note] InnoDB: 96 redo rollback segment(s) found. 96 redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-31T12:39:44.141919Z 0 [Note] InnoDB: 32 non-redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-31T12:39:44.143755Z 0 [Note] InnoDB: Waiting for purge to start
+mysqldb_1  | 2020-12-31T12:39:44.194967Z 0 [Note] InnoDB: 5.7.28 started; log sequence number 2628227
+mysqldb_1  | 2020-12-31T12:39:44.195547Z 0 [Note] Plugin 'FEDERATED' is disabled.
+mysqldb_1  | 2020-12-31T12:39:44.203211Z 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+mysqldb_1  | 2020-12-31T12:39:44.235346Z 0 [Note] InnoDB: Buffer pool(s) load completed at 201231 12:39:44
+mysqldb_1  | 2020-12-31T12:39:44.248295Z 0 [Note] Found ca.pem, server-cert.pem and server-key.pem in data directory. Trying to enable SSL support using them.
+mysqldb_1  | 2020-12-31T12:39:44.249253Z 0 [Note] Skipping generation of SSL certificates as certificate files are present in data directory.
+mysqldb_1  | 2020-12-31T12:39:44.251881Z 0 [Warning] CA certificate ca.pem is self signed.
+mysqldb_1  | 2020-12-31T12:39:44.254841Z 0 [Note] Skipping generation of RSA key pair as key files are present in data directory.
+mysqldb_1  | 2020-12-31T12:39:44.282430Z 0 [Warning] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysqldb_1  | 2020-12-31T12:39:44.314018Z 0 [Note] Event Scheduler: Loaded 0 events
+mysqldb_1  | 2020-12-31T12:39:44.314959Z 0 [Note] mysqld: ready for connections.
+mysqldb_1  | Version: '5.7.28'  socket: '/var/run/mysqld/mysqld.sock'  port: 0  MySQL Community Server (GPL)
+mysqldb_1  | 2020-12-31 12:39:44+00:00 [Note] [Entrypoint]: Temporary server started.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/iso3166.tab' as time zone. Skipping it.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/leap-seconds.list' as time zone. Skipping it.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/zone.tab' as time zone. Skipping it.
+mysqldb_1  | Warning: Unable to load '/usr/share/zoneinfo/zone1970.tab' as time zone. Skipping it.
+mysqldb_1  | 2020-12-31 12:39:47+00:00 [Note] [Entrypoint]: Creating database proje
+mysqldb_1  | 2020-12-31 12:39:47+00:00 [Note] [Entrypoint]: Creating user projemaster
+mysqldb_1  | 2020-12-31 12:39:47+00:00 [Note] [Entrypoint]: Giving user projemaster access to schema proje
+mysqldb_1  |
+mysqldb_1  | 2020-12-31 12:39:47+00:00 [Note] [Entrypoint]: /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/tabloyarat.sql
+mysqldb_1  |
+mysqldb_1  |
+mysqldb_1  | 2020-12-31 12:39:47+00:00 [Note] [Entrypoint]: Stopping temporary server
+mysqldb_1  | 2020-12-31T12:39:47.998817Z 0 [Note] Giving 0 client threads a chance to die gracefully
+mysqldb_1  | 2020-12-31T12:39:47.999186Z 0 [Note] Shutting down slave threads
+mysqldb_1  | 2020-12-31T12:39:47.999817Z 0 [Note] Forcefully disconnecting 0 remaining clients
+mysqldb_1  | 2020-12-31T12:39:48.000294Z 0 [Note] Event Scheduler: Purging the queue. 0 events
+mysqldb_1  | 2020-12-31T12:39:48.000827Z 0 [Note] Binlog end
+mysqldb_1  | 2020-12-31T12:39:48.009434Z 0 [Note] Shutting down plugin 'ngram'
+mysqldb_1  | 2020-12-31T12:39:48.013294Z 0 [Note] Shutting down plugin 'partition'
+mysqldb_1  | 2020-12-31T12:39:48.014334Z 0 [Note] Shutting down plugin 'BLACKHOLE'
+mysqldb_1  | 2020-12-31T12:39:48.015579Z 0 [Note] Shutting down plugin 'ARCHIVE'
+mysqldb_1  | 2020-12-31T12:39:48.017725Z 0 [Note] Shutting down plugin 'PERFORMANCE_SCHEMA'
+mysqldb_1  | 2020-12-31T12:39:48.022006Z 0 [Note] Shutting down plugin 'MRG_MYISAM'
+mysqldb_1  | 2020-12-31T12:39:48.026995Z 0 [Note] Shutting down plugin 'MyISAM'
+mysqldb_1  | 2020-12-31T12:39:48.038898Z 0 [Note] Shutting down plugin 'INNODB_SYS_VIRTUAL'
+mysqldb_1  | 2020-12-31T12:39:48.043544Z 0 [Note] Shutting down plugin 'INNODB_SYS_DATAFILES'
+mysqldb_1  | 2020-12-31T12:39:48.044873Z 0 [Note] Shutting down plugin 'INNODB_SYS_TABLESPACES'
+mysqldb_1  | 2020-12-31T12:39:48.046792Z 0 [Note] Shutting down plugin 'INNODB_SYS_FOREIGN_COLS'
+mysqldb_1  | 2020-12-31T12:39:48.052738Z 0 [Note] Shutting down plugin 'INNODB_SYS_FOREIGN'
+mysqldb_1  | 2020-12-31T12:39:48.061279Z 0 [Note] Shutting down plugin 'INNODB_SYS_FIELDS'
+mysqldb_1  | 2020-12-31T12:39:48.061365Z 0 [Note] Shutting down plugin 'INNODB_SYS_COLUMNS'
+mysqldb_1  | 2020-12-31T12:39:48.061375Z 0 [Note] Shutting down plugin 'INNODB_SYS_INDEXES'
+mysqldb_1  | 2020-12-31T12:39:48.061381Z 0 [Note] Shutting down plugin 'INNODB_SYS_TABLESTATS'
+mysqldb_1  | 2020-12-31T12:39:48.061388Z 0 [Note] Shutting down plugin 'INNODB_SYS_TABLES'
+mysqldb_1  | 2020-12-31T12:39:48.061394Z 0 [Note] Shutting down plugin 'INNODB_FT_INDEX_TABLE'
+mysqldb_1  | 2020-12-31T12:39:48.061400Z 0 [Note] Shutting down plugin 'INNODB_FT_INDEX_CACHE'
+mysqldb_1  | 2020-12-31T12:39:48.061406Z 0 [Note] Shutting down plugin 'INNODB_FT_CONFIG'
+mysqldb_1  | 2020-12-31T12:39:48.061417Z 0 [Note] Shutting down plugin 'INNODB_FT_BEING_DELETED'
+mysqldb_1  | 2020-12-31T12:39:48.061426Z 0 [Note] Shutting down plugin 'INNODB_FT_DELETED'
+mysqldb_1  | 2020-12-31T12:39:48.061437Z 0 [Note] Shutting down plugin 'INNODB_FT_DEFAULT_STOPWORD'
+mysqldb_1  | 2020-12-31T12:39:48.061450Z 0 [Note] Shutting down plugin 'INNODB_METRICS'
+mysqldb_1  | 2020-12-31T12:39:48.061462Z 0 [Note] Shutting down plugin 'INNODB_TEMP_TABLE_INFO'
+mysqldb_1  | 2020-12-31T12:39:48.061474Z 0 [Note] Shutting down plugin 'INNODB_BUFFER_POOL_STATS'
+mysqldb_1  | 2020-12-31T12:39:48.061485Z 0 [Note] Shutting down plugin 'INNODB_BUFFER_PAGE_LRU'
+mysqldb_1  | 2020-12-31T12:39:48.061499Z 0 [Note] Shutting down plugin 'INNODB_BUFFER_PAGE'
+mysqldb_1  | 2020-12-31T12:39:48.061520Z 0 [Note] Shutting down plugin 'INNODB_CMP_PER_INDEX_RESET'
+mysqldb_1  | 2020-12-31T12:39:48.061534Z 0 [Note] Shutting down plugin 'INNODB_CMP_PER_INDEX'
+mysqldb_1  | 2020-12-31T12:39:48.061545Z 0 [Note] Shutting down plugin 'INNODB_CMPMEM_RESET'
+mysqldb_1  | 2020-12-31T12:39:48.061558Z 0 [Note] Shutting down plugin 'INNODB_CMPMEM'
+mysqldb_1  | 2020-12-31T12:39:48.061568Z 0 [Note] Shutting down plugin 'INNODB_CMP_RESET'
+mysqldb_1  | 2020-12-31T12:39:48.065215Z 0 [Note] Shutting down plugin 'INNODB_CMP'
+mysqldb_1  | 2020-12-31T12:39:48.066170Z 0 [Note] Shutting down plugin 'INNODB_LOCK_WAITS'
+mysqldb_1  | 2020-12-31T12:39:48.066229Z 0 [Note] Shutting down plugin 'INNODB_LOCKS'
+mysqldb_1  | 2020-12-31T12:39:48.066238Z 0 [Note] Shutting down plugin 'INNODB_TRX'
+mysqldb_1  | 2020-12-31T12:39:48.066245Z 0 [Note] Shutting down plugin 'InnoDB'
+mysqldb_1  | 2020-12-31T12:39:48.068721Z 0 [Note] InnoDB: FTS optimize thread exiting.
+mysqldb_1  | 2020-12-31T12:39:48.071607Z 0 [Note] InnoDB: Starting shutdown...
+mysqldb_1  | 2020-12-31T12:39:48.175568Z 0 [Note] InnoDB: Dumping buffer pool(s) to /var/lib/mysql/ib_buffer_pool
+mysqldb_1  | 2020-12-31T12:39:48.187114Z 0 [Note] InnoDB: Buffer pool(s) dump completed at 201231 12:39:48
+mysqldb_1  | 2020-12-31T12:39:49.202325Z 0 [Note] InnoDB: Shutdown completed; log sequence number 12444647
+mysqldb_1  | 2020-12-31T12:39:49.213120Z 0 [Note] InnoDB: Removed temporary tablespace data file: "ibtmp1"
+mysqldb_1  | 2020-12-31T12:39:49.214807Z 0 [Note] Shutting down plugin 'MEMORY'
+mysqldb_1  | 2020-12-31T12:39:49.215772Z 0 [Note] Shutting down plugin 'CSV'
+mysqldb_1  | 2020-12-31T12:39:49.216822Z 0 [Note] Shutting down plugin 'sha256_password'
+mysqldb_1  | 2020-12-31T12:39:49.218622Z 0 [Note] Shutting down plugin 'mysql_native_password'
+mysqldb_1  | 2020-12-31T12:39:49.220749Z 0 [Note] Shutting down plugin 'binlog'
+mysqldb_1  | 2020-12-31T12:39:49.246785Z 0 [Note] mysqld: Shutdown complete
+mysqldb_1  |
+mysqldb_1  | 2020-12-31 12:39:50+00:00 [Note] [Entrypoint]: Temporary server stopped
+mysqldb_1  |
+mysqldb_1  | 2020-12-31 12:39:50+00:00 [Note] [Entrypoint]: MySQL init process done. Ready for start up.
+mysqldb_1  |
+mysqldb_1  | 2020-12-31T12:39:50.252268Z 0 [Warning] TIMESTAMP with implicit DEFAULT value is deprecated. Please use --explicit_defaults_for_timestamp server option (see documentation for more details).
+mysqldb_1  | 2020-12-31T12:39:50.255274Z 0 [Note] mysqld (mysqld 5.7.28) starting as process 1 ...
+mysqldb_1  | 2020-12-31T12:39:50.261505Z 0 [Note] InnoDB: PUNCH HOLE support available
+mysqldb_1  | 2020-12-31T12:39:50.264277Z 0 [Note] InnoDB: Mutexes and rw_locks use GCC atomic builtins
+mysqldb_1  | 2020-12-31T12:39:50.265540Z 0 [Note] InnoDB: Uses event mutexes
+mysqldb_1  | 2020-12-31T12:39:50.266345Z 0 [Note] InnoDB: GCC builtin __atomic_thread_fence() is used for memory barrier
+mysqldb_1  | 2020-12-31T12:39:50.266881Z 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+mysqldb_1  | 2020-12-31T12:39:50.267513Z 0 [Note] InnoDB: Using Linux native AIO
+mysqldb_1  | 2020-12-31T12:39:50.279993Z 0 [Note] InnoDB: Number of pools: 1
+mysqldb_1  | 2020-12-31T12:39:50.281061Z 0 [Note] InnoDB: Using CPU crc32 instructions
+mysqldb_1  | 2020-12-31T12:39:50.302094Z 0 [Note] InnoDB: Initializing buffer pool, total size = 128M, instances = 1, chunk size = 128M
+mysqldb_1  | 2020-12-31T12:39:50.335838Z 0 [Note] InnoDB: Completed initialization of buffer pool
+mysqldb_1  | 2020-12-31T12:39:50.344639Z 0 [Note] InnoDB: If the mysqld execution user is authorized, page cleaner thread priority can be changed. See the man page of setpriority().
+mysqldb_1  | 2020-12-31T12:39:50.356387Z 0 [Note] InnoDB: Highest supported file format is Barracuda.
+mysqldb_1  | 2020-12-31T12:39:50.370912Z 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+mysqldb_1  | 2020-12-31T12:39:50.371655Z 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+mysqldb_1  | 2020-12-31T12:39:50.412101Z 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+mysqldb_1  | 2020-12-31T12:39:50.414071Z 0 [Note] InnoDB: 96 redo rollback segment(s) found. 96 redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-31T12:39:50.415006Z 0 [Note] InnoDB: 32 non-redo rollback segment(s) are active.
+mysqldb_1  | 2020-12-31T12:39:50.419838Z 0 [Note] InnoDB: Waiting for purge to start
+mysqldb_1  | 2020-12-31T12:39:50.470764Z 0 [Note] InnoDB: 5.7.28 started; log sequence number 12444647
+mysqldb_1  | 2020-12-31T12:39:50.472300Z 0 [Note] Plugin 'FEDERATED' is disabled.
+mysqldb_1  | 2020-12-31T12:39:50.479649Z 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+mysqldb_1  | 2020-12-31T12:39:50.499408Z 0 [Note] InnoDB: Buffer pool(s) load completed at 201231 12:39:50
+mysqldb_1  | 2020-12-31T12:39:50.501579Z 0 [Note] Found ca.pem, server-cert.pem and server-key.pem in data directory. Trying to enable SSL support using them.
+mysqldb_1  | 2020-12-31T12:39:50.503640Z 0 [Note] Skipping generation of SSL certificates as certificate files are present in data directory.
+mysqldb_1  | 2020-12-31T12:39:50.512985Z 0 [Warning] CA certificate ca.pem is self signed.
+mysqldb_1  | 2020-12-31T12:39:50.515421Z 0 [Note] Skipping generation of RSA key pair as key files are present in data directory.
+mysqldb_1  | 2020-12-31T12:39:50.524194Z 0 [Note] Server hostname (bind-address): '*'; port: 3306
+mysqldb_1  | 2020-12-31T12:39:50.531422Z 0 [Note] IPv6 is available.
+mysqldb_1  | 2020-12-31T12:39:50.533497Z 0 [Note]   - '::' resolves to '::';
+mysqldb_1  | 2020-12-31T12:39:50.534673Z 0 [Note] Server socket created on IP: '::'.
+mysqldb_1  | 2020-12-31T12:39:50.546073Z 0 [Warning] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysqldb_1  | 2020-12-31T12:39:50.579054Z 0 [Note] Event Scheduler: Loaded 0 events
+Gracefully stopping... (press Ctrl+C again to force)
+Stopping bolum68_websrv_1  ... done
+Stopping bolum68_mysqldb_1 ... done
+
+PS C:\AdanZyeDocker\kisim6\bolum68> docker-compose down
+Removing bolum68_websrv_1  ... done
+Removing bolum68_mysqldb_1 ... done
+Removing network bolum68_webnet
+
+**We can build image again with below commands before running**
+PS C:\AdanZyeDocker\kisim6\bolum68> docker-compose build
+mysqldb uses an image, skipping
+Building websrv
+Step 1/6 : FROM php:7.3-apache
+ ---> ddceef02e8b3
+Step 2/6 : RUN apt-get update -y && apt-get install mariadb-client-10.3 -y
+ ---> Using cache
+ ---> ccaf786d5061
+Step 3/6 : RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+ ---> Using cache
+ ---> 9a21e9ff2f72
+Step 4/6 : RUN mkdir /var/www/html/images
+ ---> Using cache
+ ---> 398e48ed6b74
+Step 5/6 : RUN chmod 777 /var/www/html/images
+ ---> Using cache
+ ---> b9435bb4b7be
+Step 6/6 : COPY ./php/ /var/www/html/
+ ---> Using cache
+ ---> 52355dc07b4f
+
+Successfully built 52355dc07b4f
+Successfully tagged bolum68_websrv:latest
+
+PS C:\AdanZyeDocker\kisim6\bolum68> docker-compose up -d
+Creating network "bolum68_webnet" with driver "bridge"
+Creating bolum68_mysqldb_1 ... done
+Creating bolum68_websrv_1  ... done
+
+PS C:\AdanZyeDocker\kisim6\bolum68> docker-compose down
+Stopping bolum68_websrv_1  ... done
+Stopping bolum68_mysqldb_1 ... done
+Removing bolum68_websrv_1  ... done
+Removing bolum68_mysqldb_1 ... done
+Removing network bolum68_webnet
+
+**Docker Orchectation **
