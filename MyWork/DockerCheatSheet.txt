@@ -5248,5 +5248,119 @@ vik79ay0i17g    \_ websrv.10   ozgurozturknet/web:v1   node3     Shutdown       
 
 _________
 
-**Docker Secrets**
+* ***Docker Secrets***
+
+**How to create a secret key at Docker**
+PS C:\Users\ebubekir> docker swarm init --advertise-addr 192.168.99.100
+Swarm initialized: current node (egijasi2wm2id6qjdoqqjols9) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-1py6fklfve7hnuxivaww2hrtfuvedml062qwzosc25pjskc6oi-6pbxocicfmtahbia5ia2mcous 192.168.99.100:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+
+PS C:\Users\ebubekir> cd C:\AdanZyeDocker\kisim6\
+PS C:\AdanZyeDocker\kisim6> notepad kullaniciadi.txt
+PS C:\AdanZyeDocker\kisim6> notepad sifre.txt
+PS C:\AdanZyeDocker\kisim6> docker secret create kullanici_adi .\kullaniciadi.txt
+llol5rbnkldabi4qno4astfy2
+PS C:\AdanZyeDocker\kisim6> docker secret create sifre .\sifre.txt
+u6e60k5cglqx700caw2aqy3jn
+PS C:\AdanZyeDocker\kisim6> docker secret
+
+Usage:  docker secret COMMAND
+
+Manage Docker secrets
+
+Commands:
+  create      Create a secret from a file or STDIN as content
+  inspect     Display detailed information on one or more secrets
+  ls          List secrets
+  rm          Remove one or more secrets
+
+Run 'docker secret COMMAND --help' for more information on a command.
+PS C:\AdanZyeDocker\kisim6> docker secret ls
+ID                          NAME                DRIVER              CREATED             UPDATED
+llol5rbnkldabi4qno4astfy2   kullanici_adi                           35 seconds ago      35 seconds ago
+u6e60k5cglqx700caw2aqy3jn   sifre                                   18 seconds ago      18 seconds ago
+PS C:\AdanZyeDocker\kisim6> docker secret inspect sifre
+[
+    {
+        "ID": "u6e60k5cglqx700caw2aqy3jn",
+        "Version": {
+            "Index": 12
+        },
+        "CreatedAt": "2021-01-01T12:14:28.734900418Z",
+        "UpdatedAt": "2021-01-01T12:14:28.734900418Z",
+        "Spec": {
+            "Name": "sifre",
+            "Labels": {}
+        }
+    }
+]
+PS C:\AdanZyeDocker\kisim6> echo "Bu bir denemedir" | docker secret create deneme -
+m8ty92md6wu6t43i2pw0jtv0y
+
+PS C:\AdanZyeDocker\kisim6> docker secret ls
+ID                          NAME                DRIVER              CREATED             UPDATED
+m8ty92md6wu6t43i2pw0jtv0y   deneme                                  5 seconds ago       5 seconds ago
+llol5rbnkldabi4qno4astfy2   kullanici_adi                           2 minutes ago       2 minutes ago
+u6e60k5cglqx700caw2aqy3jn   sifre                                   2 minutes ago       2 minutes ago
+
+**After create those secret keys How to use while creating container or service**
+
+PS C:\AdanZyeDocker\kisim6> docker service create -d --name secretdeneme --secret kullanici_adi --secret sifre --secret deneme ozgurozturknet/web
+a6ldehayb3gyseivsb2ylxx4t
+
+PS C:\AdanZyeDocker\kisim6> docker service ps secretdeneme
+ID                  NAME                IMAGE                       NODE                DESIRED STATE       CURRENT STATE                  ERROR               PORTS
+eqkm5nz5z4ph        secretdeneme.1      ozgurozturknet/web:latest   default             Running             Preparing about a minute ago                     
+
+PS C:\AdanZyeDocker\kisim6> docker ps
+CONTAINER ID        IMAGE                       COMMAND             CREATED             STATUS                   PORTS               NAMES
+c535c1b7e3f1        ozgurozturknet/web:latest   "./script.sh"       3 minutes ago       Up 3 minutes (healthy)   80/tcp              secretdeneme.1.eqkm5nz5z4phdrzm2sj7c4pis
+
+PS C:\AdanZyeDocker\kisim6> docker exec -it c535c1b7e3f1 sh
+# cd /
+# ls
+bin  boot  dev  etc  gecici  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+# cd /run
+# ls
+lock  nginx.pid  secrets  utmp
+# cd secrets
+# ls
+deneme  kullanici_adi  sifre
+# cat sifre
+@mer_123456
+# cat kullanici_adi
+ozgurozturknet
+# cat deneme
+Bu bir denemedir
+# exit
+
+PS C:\AdanZyeDocker\kisim6> echo "sndkjsdvbjbfvdbfv" | docker secret create sifre2 -
+mgdbktbkn4dsda8ukht3sugd8
+
+PS C:\AdanZyeDocker\kisim6> docker service update --secret-rm sifre --secret-add sifre2  secretdeneme
+secretdeneme
+overall progress: 1 out of 1 tasks
+1/1: running   [==================================================>]
+verify: Service converged
+PS C:\AdanZyeDocker\kisim6> docker ps
+CONTAINER ID        IMAGE                       COMMAND             CREATED              STATUS                        PORTS               NAMES
+c9728fccd269        ozgurozturknet/web:latest   "./script.sh"       About a minute ago   Up About a minute (healthy)   80/tcp              secretdeneme.1.i0c1q984j0g3qek4sf49m08pv
+
+PS C:\AdanZyeDocker\kisim6> docker exec -it c9728fccd269 sh
+# cd /
+# cd run
+# ls
+lock  nginx.pid  secrets  utmp
+# cd secrets
+# ls
+deneme  kullanici_adi  sifre2
+# cat sifre2
+sndkjsdvbjbfvdbfv
+
+_________
 
