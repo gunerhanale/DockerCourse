@@ -5152,3 +5152,101 @@ zxm5a1bj9c8m   websrv.8    ozgurozturknet/web:v1   node2     Running         Run
 rifklv63nt5m   websrv.9    ozgurozturknet/web:v1   node1     Running         Running about a minute ago             
 vik79ay0i17g   websrv.10   ozgurozturknet/web:v1   node3     Running         Running about a minute ago
 
+**'docker service update' command provides to update images or configurations without interrupt**
+
+[node1] (local) root@192.168.0.26 ~
+$ docker service update --detach --update-delay 5s --update-parallelism 2 --image ozgurozturknet/web:v2 websrv
+websrv
+[node1] (local) root@192.168.0.26 ~
+$ docker service ps websrv 
+ID             NAME           IMAGE                   NODE      DESIRED STATE   CURRENT STATE             ERROR     PORTS
+vr59tc3jkahm   websrv.1       ozgurozturknet/web:v1   node5     Running         Running 13 minutes ago              
+rewwdmpxs4xh   websrv.2       ozgurozturknet/web:v1   node4     Running         Running 13 minutes ago              
+ws6856r958mv   websrv.3       ozgurozturknet/web:v1   node1     Running         Running 13 minutes ago              
+02ecuagk1j7d   websrv.4       ozgurozturknet/web:v1   node3     Running         Running 13 minutes ago              
+m4zin3czgt7f   websrv.5       ozgurozturknet/web:v1   node2     Running         Running 13 minutes ago              
+d1rdh67u6qhq   websrv.6       ozgurozturknet/web:v2   node1     Running         Starting 16 seconds ago             
+lgg808pyxfq2    \_ websrv.6   ozgurozturknet/web:v1   node5     Shutdown        Shutdown 16 seconds ago             
+f2h0buzz42ad   websrv.7       ozgurozturknet/web:v1   node4     Running         Running 13 minutes ago              
+zxm5a1bj9c8m   websrv.8       ozgurozturknet/web:v1   node2     Running         Running 13 minutes ago              
+q51vlh1kbcdb   websrv.9       ozgurozturknet/web:v2   node5     Running         Starting 16 seconds ago             
+rifklv63nt5m    \_ websrv.9   ozgurozturknet/web:v1   node1     Shutdown        Shutdown 16 seconds ago             
+vik79ay0i17g   websrv.10      ozgurozturknet/web:v1   node3     Running         Running 13 minutes ago              
+[node1] (local) root@192.168.0.26 ~
+$ docker service ps websrv 
+ID             NAME           IMAGE                   NODE      DESIRED STATE   CURRENT STATE                 ERROR     PORTS
+vr59tc3jkahm   websrv.1       ozgurozturknet/web:v1   node5     Running         Running 14 minutes ago                  
+rewwdmpxs4xh   websrv.2       ozgurozturknet/web:v1   node4     Running         Running 14 minutes ago                  
+g6k0lue9m8z7   websrv.3       ozgurozturknet/web:v2   node1     Running         Running 13 seconds ago                  
+ws6856r958mv    \_ websrv.3   ozgurozturknet/web:v1   node1     Shutdown        Shutdown 44 seconds ago                 
+qo8sqcmzq5qz   websrv.4       ozgurozturknet/web:v2   node3     Running         Running 13 seconds ago                  
+02ecuagk1j7d    \_ websrv.4   ozgurozturknet/web:v1   node3     Shutdown        Shutdown 44 seconds ago                 
+sncye9lxgtb1   websrv.5       ozgurozturknet/web:v2   node2     Ready           Ready 6 seconds ago                     
+m4zin3czgt7f    \_ websrv.5   ozgurozturknet/web:v1   node2     Shutdown        Running 7 seconds ago                   
+d1rdh67u6qhq   websrv.6       ozgurozturknet/web:v2   node1     Running         Running about a minute ago              
+lgg808pyxfq2    \_ websrv.6   ozgurozturknet/web:v1   node5     Shutdown        Shutdown about a minute ago             
+xscf24poalzs   websrv.7       ozgurozturknet/web:v2   node4     Ready           Ready 6 seconds ago                     
+f2h0buzz42ad    \_ websrv.7   ozgurozturknet/web:v1   node4     Shutdown        Running 7 seconds ago                   
+zxm5a1bj9c8m   websrv.8       ozgurozturknet/web:v1   node2     Running         Running 14 minutes ago                  
+q51vlh1kbcdb   websrv.9       ozgurozturknet/web:v2   node5     Running         Running about a minute ago              
+rifklv63nt5m    \_ websrv.9   ozgurozturknet/web:v1   node1     Shutdown        Shutdown about a minute ago             
+vik79ay0i17g   websrv.10      ozgurozturknet/web:v1   node3     Running         Running 14 minutes ago                  
+[node1] (local) root@192.168.0.26 ~
+$ docker service ps websrv 
+ID             NAME            IMAGE                   NODE      DESIRED STATE   CURRENT STATE                 ERROR     PORTS
+5txwybj13r5i   websrv.1        ozgurozturknet/web:v2   node5     Running         Running 53 seconds ago                  
+vr59tc3jkahm    \_ websrv.1    ozgurozturknet/web:v1   node5     Shutdown        Shutdown about a minute ago             
+9iu1r8e731i3   websrv.2        ozgurozturknet/web:v2   node4     Running         Running about a minute ago              
+rewwdmpxs4xh    \_ websrv.2    ozgurozturknet/web:v1   node4     Shutdown        Shutdown 2 minutes ago                  
+g6k0lue9m8z7   websrv.3        ozgurozturknet/web:v2   node1     Running         Running 3 minutes ago                   
+ws6856r958mv    \_ websrv.3    ozgurozturknet/web:v1   node1     Shutdown        Shutdown 3 minutes ago                  
+qo8sqcmzq5qz   websrv.4        ozgurozturknet/web:v2   node3     Running         Running 3 minutes ago                   
+02ecuagk1j7d    \_ websrv.4    ozgurozturknet/web:v1   node3     Shutdown        Shutdown 3 minutes ago                  
+sncye9lxgtb1   websrv.5        ozgurozturknet/web:v2   node2     Running         Running 2 minutes ago                   
+m4zin3czgt7f    \_ websrv.5    ozgurozturknet/web:v1   node2     Shutdown        Shutdown 3 minutes ago                  
+d1rdh67u6qhq   websrv.6        ozgurozturknet/web:v2   node1     Running         Running 4 minutes ago                   
+lgg808pyxfq2    \_ websrv.6    ozgurozturknet/web:v1   node5     Shutdown        Shutdown 4 minutes ago                  
+xscf24poalzs   websrv.7        ozgurozturknet/web:v2   node4     Running         Running 2 minutes ago                   
+f2h0buzz42ad    \_ websrv.7    ozgurozturknet/web:v1   node4     Shutdown        Shutdown 3 minutes ago                  
+ne6bm5gdim2z   websrv.8        ozgurozturknet/web:v2   node2     Running         Running 53 seconds ago                  
+zxm5a1bj9c8m    \_ websrv.8    ozgurozturknet/web:v1   node2     Shutdown        Shutdown about a minute ago             
+q51vlh1kbcdb   websrv.9        ozgurozturknet/web:v2   node5     Running         Running 4 minutes ago                   
+rifklv63nt5m    \_ websrv.9    ozgurozturknet/web:v1   node1     Shutdown        Shutdown 4 minutes ago                  
+ooe7m562op1m   websrv.10       ozgurozturknet/web:v2   node3     Running         Running about a minute ago              
+vik79ay0i17g    \_ websrv.10   ozgurozturknet/web:v1   node3     Shutdown        Shutdown 2 minutes ago 
+
+
+**'docker service rollback' provides us to return previous image version**
+
+[node1] (local) root@192.168.0.26 ~
+$ docker service rollback --detach websrv 
+websrv
+[node1] (local) root@192.168.0.26 ~
+$ docker service ps websrv 
+ID             NAME            IMAGE                   NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+nlrat2z68bic   websrv.1        ozgurozturknet/web:v1   node5     Ready           Ready 9 seconds ago                
+5txwybj13r5i    \_ websrv.1    ozgurozturknet/web:v2   node5     Shutdown        Running 10 seconds ago             
+vr59tc3jkahm    \_ websrv.1    ozgurozturknet/web:v1   node5     Shutdown        Shutdown 4 minutes ago             
+9iu1r8e731i3   websrv.2        ozgurozturknet/web:v2   node4     Running         Running 5 minutes ago              
+rewwdmpxs4xh    \_ websrv.2    ozgurozturknet/web:v1   node4     Shutdown        Shutdown 5 minutes ago             
+g6k0lue9m8z7   websrv.3        ozgurozturknet/web:v2   node1     Running         Running 6 minutes ago              
+ws6856r958mv    \_ websrv.3    ozgurozturknet/web:v1   node1     Shutdown        Shutdown 7 minutes ago             
+qo8sqcmzq5qz   websrv.4        ozgurozturknet/web:v2   node3     Running         Running 6 minutes ago              
+02ecuagk1j7d    \_ websrv.4    ozgurozturknet/web:v1   node3     Shutdown        Shutdown 7 minutes ago             
+sncye9lxgtb1   websrv.5        ozgurozturknet/web:v2   node2     Running         Running 5 minutes ago              
+m4zin3czgt7f    \_ websrv.5    ozgurozturknet/web:v1   node2     Shutdown        Shutdown 6 minutes ago             
+d1rdh67u6qhq   websrv.6        ozgurozturknet/web:v2   node1     Running         Running 7 minutes ago              
+lgg808pyxfq2    \_ websrv.6    ozgurozturknet/web:v1   node5     Shutdown        Shutdown 8 minutes ago             
+xscf24poalzs   websrv.7        ozgurozturknet/web:v2   node4     Running         Running 5 minutes ago              
+f2h0buzz42ad    \_ websrv.7    ozgurozturknet/web:v1   node4     Shutdown        Shutdown 6 minutes ago             
+ne6bm5gdim2z   websrv.8        ozgurozturknet/web:v2   node2     Running         Running 4 minutes ago              
+zxm5a1bj9c8m    \_ websrv.8    ozgurozturknet/web:v1   node2     Shutdown        Shutdown 4 minutes ago             
+q51vlh1kbcdb   websrv.9        ozgurozturknet/web:v2   node5     Running         Running 7 minutes ago              
+rifklv63nt5m    \_ websrv.9    ozgurozturknet/web:v1   node1     Shutdown        Shutdown 8 minutes ago             
+ooe7m562op1m   websrv.10       ozgurozturknet/web:v2   node3     Running         Running 5 minutes ago              
+vik79ay0i17g    \_ websrv.10   ozgurozturknet/web:v1   node3     Shutdown        Shutdown 5 minutes ago
+
+_________
+
+**Docker Secrets**
+
