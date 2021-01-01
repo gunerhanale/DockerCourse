@@ -5364,3 +5364,102 @@ sndkjsdvbjbfvdbfv
 
 _________
 
+* ***Docker Stack***
+
+**How to create a docker stack file for swarm**
+
+PS C:\AdanZyeDocker\kisim6\bolum79> code .
+PS C:\AdanZyeDocker\kisim6\bolum79> cat .\docker-compose.yml
+version: '3.7'
+
+services:
+   mysqldb:
+     image: ozgurozturknet/webdb
+     environment:
+      MYSQL_DATABASE: proje
+      MYSQL_USER: projemaster
+      MYSQL_PASSWORD: master1234
+      MYSQL_ROOT_PASSWORD: master1234
+     networks:
+      - webnet
+
+   websrv:
+     image: ozgurozturknet/webkayit
+     deploy:
+       replicas: 3
+       update_config:
+        parallelism: 2
+        delay: 10s
+        order: stop-first
+     depends_on:
+       - mysqldb
+     ports:
+       - "80:80"
+     restart: always
+     networks:
+       - webnet
+     environment:
+       DB_SERVER: mysqldb
+       DB_USERNAME: projemaster
+       DB_PASS: master1234
+       DB_NAME: proje
+networks:
+  webnet:
+    driver: overlay
+
+PS C:\AdanZyeDocker\kisim6\bolum79> docker stack
+
+Usage:  docker stack [OPTIONS] COMMAND
+
+Manage Docker stacks
+
+Options:
+      --orchestrator string   Orchestrator to use (swarm|kubernetes|all)
+
+Commands:
+  deploy      Deploy a new stack or update an existing stack
+  ls          List stacks
+  ps          List the tasks in the stack
+  rm          Remove one or more stacks
+  services    List the services in the stack
+
+Run 'docker stack COMMAND --help' for more information on a command.
+
+PS C:\AdanZyeDocker\kisim6\bolum79> docker stack deploy -c .\docker-compose.yml firststack
+Ignoring unsupported options: restart
+
+Creating network firststack_webnet
+Creating service firststack_websrv
+Creating service firststack_mysqldb
+
+PS C:\AdanZyeDocker\kisim6\bolum79> docker stack ls
+NAME                SERVICES            ORCHESTRATOR
+firststack          2                   Swarm
+
+PS C:\AdanZyeDocker\kisim6\bolum79> docker stack services firststack
+ID                  NAME                 MODE                REPLICAS            IMAGE                            PORTS
+o6gdymms1rjv        firststack_websrv    replicated          3/3                 ozgurozturknet/webkayit:latest   *:80->80/tcp
+yzmdmdmvarht        firststack_mysqldb   replicated          1/1                 ozgurozturknet/webdb:latest
+
+PS C:\AdanZyeDocker\kisim6\bolum79> docker stack ps firststack
+ID                  NAME                   IMAGE                            NODE                DESIRED STATE       CURRENT STATE           ERROR               PORTS
+l50ih640rbi9        firststack_mysqldb.1   ozgurozturknet/webdb:latest      default             Running             Running 2 minutes ago                    
+ntfkquox08z7        firststack_websrv.1    ozgurozturknet/webkayit:latest   default             Running             Running 2 minutes ago                    
+r6v3w4l7by6j        firststack_websrv.2    ozgurozturknet/webkayit:latest   default             Running             Running 2 minutes ago                    
+z5vx9r733i7p        firststack_websrv.3    ozgurozturknet/webkayit:latest   default             Running             Running 2 minutes ago                    
+
+PS C:\AdanZyeDocker\kisim6\bolum79> docker service ps firststack_websrv
+ID                  NAME                  IMAGE                            NODE                DESIRED STATE       CURRENT STATE                ERROR               PORTS
+ntfkquox08z7        firststack_websrv.1   ozgurozturknet/webkayit:latest   default             Running             Running about a minute ago                
+r6v3w4l7by6j        firststack_websrv.2   ozgurozturknet/webkayit:latest   default             Running             Running about a minute ago                
+z5vx9r733i7p        firststack_websrv.3   ozgurozturknet/webkayit:latest   default             Running             Running about a minute ago                
+
+PS C:\AdanZyeDocker\kisim6\bolum79> docker stack rm firststack
+Removing service firststack_mysqldb
+Removing service firststack_websrv
+Removing network firststack_webnet
+
+PS C:\AdanZyeDocker\kisim6\bolum79> docker stack ls
+NAME                SERVICES            ORCHESTRATOR
+
+_________
