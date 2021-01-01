@@ -4728,4 +4728,427 @@ This node joined a swarm as a worker.
 $ docker ps
 CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
 31dc26190648   nginx:latest   "/docker-entrypoint.…"   4 minutes ago   Up 4 minutes   80/tcp    test.3.tsf5d5ihvy4l099tav6jc8jx4
+_____
+
+**Docker Service**
+
+[node1] (local) root@192.168.0.4 ~
+docker swarm init --advertise-addr 192.168.0.4
+Swarm initialized: current node (zjd59tws8iyehy01h3f7mj9ti) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-3k4fkht0doawi8ghsvwt7fnbujmz50c6a8puru48goky2ju06d-7liemalimdd4h0nqq9slxiycv 192.168.0.4:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+
+[node1] (local) root@192.168.0.4 ~
+$ docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+zjd59tws8iyehy01h3f7mj9ti *   node1      Ready     Active         Leader           20.10.0
+p34gn5i13j0wichy65klur274     node2      Ready     Active                          20.10.0
+h2s4hnel2059ref0uzqdy90kf     node3      Ready     Active                          20.10.0
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service create --help
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service create --name test nginx
+i38kai7aqe5qfw2gjv71ua9kd
+overall progress: 1 out of 1 tasks 
+1/1: running   [==================================================>] 
+verify: Service converged 
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service ps test
+ID             NAME      IMAGE          NODE      DESIRED STATE   CURRENT STATE           ERROR     PORTS
+mhecclrf8zl8   test.1    nginx:latest   node1     Running         Running 3 minutes ago             
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service inspect test
+[
+    {
+        "ID": "i38kai7aqe5qfw2gjv71ua9kd",
+        "Version": {
+            "Index": 21
+        },
+        "CreatedAt": "2020-12-31T16:18:46.087407584Z",
+        "UpdatedAt": "2020-12-31T16:18:46.087407584Z",
+        "Spec": {
+            "Name": "test",
+            "Labels": {},
+            "TaskTemplate": {
+                "ContainerSpec": {
+                    "Image": "nginx:latest@sha256:4cf620a5c81390ee209398ecc18e5fb9dd0f5155cd82adcbae532fec94006fb9",
+                    "Init": false,
+                    "StopGracePeriod": 10000000000,
+                    "DNSConfig": {},
+                    "Isolation": "default"
+                },
+                "Resources": {
+                    "Limits": {},
+                    "Reservations": {}
+                },
+                "RestartPolicy": {
+                    "Condition": "any",
+                    "Delay": 5000000000,
+                    "MaxAttempts": 0
+                },
+                "Placement": {
+                    "Platforms": [
+                        {
+                            "Architecture": "amd64",
+                            "OS": "linux"
+                        },
+                        {
+                            "OS": "linux"
+                        },
+                        {
+                            "OS": "linux"
+                        },
+                        {
+                            "Architecture": "arm64",
+                            "OS": "linux"
+                        },
+                        {
+                            "Architecture": "386",
+                            "OS": "linux"
+                        },
+                        {
+                            "Architecture": "mips64le",
+                            "OS": "linux"
+                        },
+                        {
+                            "Architecture": "ppc64le",
+                            "OS": "linux"
+                        },
+                        {
+                            "Architecture": "s390x",
+                            "OS": "linux"
+                        }
+                    ]
+                },
+                "ForceUpdate": 0,
+                "Runtime": "container"
+            },
+            "Mode": {
+                "Replicated": {
+                    "Replicas": 1
+                }
+            },
+            "UpdateConfig": {
+                "Parallelism": 1,
+                "FailureAction": "pause",
+                "Monitor": 5000000000,
+                "MaxFailureRatio": 0,
+                "Order": "stop-first"
+            },
+            "RollbackConfig": {
+                "Parallelism": 1,
+                "FailureAction": "pause",
+                "Monitor": 5000000000,
+                "MaxFailureRatio": 0,
+                "Order": "stop-first"
+            },
+            "EndpointSpec": {
+                "Mode": "vip"
+            }
+        },
+        "Endpoint": {
+            "Spec": {}
+        }
+    }
+]
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service logs test
+test.1.mhecclrf8zl8@node1    | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+test.1.mhecclrf8zl8@node1    | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+test.1.mhecclrf8zl8@node1    | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+test.1.mhecclrf8zl8@node1    | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+test.1.mhecclrf8zl8@node1    | 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+test.1.mhecclrf8zl8@node1    | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+test.1.mhecclrf8zl8@node1    | /docker-entrypoint.sh: Configuration complete; ready for start up
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service ps test
+ID             NAME      IMAGE          NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+mhecclrf8zl8   test.1    nginx:latest   node1     Running         Running 11 minutes ago             
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service scale test=3
+test scaled to 3
+overall progress: 3 out of 3 tasks 
+1/3: running   [==================================================>] 
+2/3: running   [==================================================>] 
+3/3: running   [==================================================>] 
+verify: Service converged 
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service ps test
+ID             NAME      IMAGE          NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+mhecclrf8zl8   test.1    nginx:latest   node1     Running         Running 12 minutes ago             
+20kgmvdzjyip   test.2    nginx:latest   node3     Running         Running 12 seconds ago             
+0nswh9h6xin4   test.3    nginx:latest   node2     Running         Running 12 seconds ago             
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service scale test=2
+test scaled to 2
+overall progress: 2 out of 2 tasks 
+1/2: running   [==================================================>] 
+2/2: running   [==================================================>] 
+verify: Service converged 
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service ps test
+ID             NAME      IMAGE          NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+mhecclrf8zl8   test.1    nginx:latest   node1     Running         Running 12 minutes ago             
+20kgmvdzjyip   test.2    nginx:latest   node3     Running         Running 31 seconds ago             
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service rm test
+test
+
+**Global service mode creates a container for each node** 
+[node1] (local) root@192.168.0.4 ~
+$ docker service create --name glb --mode=global nginx
+6hoz61nput5zop0z120f96skk
+overall progress: 3 out of 3 tasks 
+p34gn5i13j0w: running   [==================================================>] 
+h2s4hnel2059: running   [==================================================>] 
+zjd59tws8iye: running   [==================================================>] 
+verify: Service converged 
+
+[node1] (local) root@192.168.0.4 ~
+$ docker service ls
+ID             NAME      MODE      REPLICAS   IMAGE          PORTS
+6hoz61nput5z   glb       global    3/3        nginx:latest   
+[node1] (local) root@192.168.0.4 ~
+
+$ docker service ps glb
+ID             NAME                            IMAGE          NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+o9ogcch13eom   glb.h2s4hnel2059ref0uzqdy90kf   nginx:latest   node3     Running         Running 35 seconds ago             
+l6lrhy3d9o4j   glb.p34gn5i13j0wichy65klur274   nginx:latest   node2     Running         Running 35 seconds ago             
+spwn4slrtry8   glb.zjd59tws8iyehy01h3f7mj9ti   nginx:latest   node1     Running         Running 35 seconds ago             
+
+**After remove a container from node2, The last status will be like below**
+[node1] (local) root@192.168.0.4 ~
+$ docker service ps glb
+ID             NAME                                IMAGE          NODE      DESIRED STATE   CURRENT STATE           ERROR                         PORTS
+o9ogcch13eom   glb.h2s4hnel2059ref0uzqdy90kf       nginx:latest   node3     Running         Running 4 minutes ago                                 
+ajuvit6gu3q5   glb.p34gn5i13j0wichy65klur274       nginx:latest   node2     Running         Running 8 seconds ago                                 
+l6lrhy3d9o4j    \_ glb.p34gn5i13j0wichy65klur274   nginx:latest   node2     Shutdown        Failed 13 seconds ago   "task: non-zero exit (137)"   
+spwn4slrtry8   glb.zjd59tws8iyehy01h3f7mj9ti       nginx:latest   node1     Running         Running 4 minutes ago   
+
+_________
+
+**Overlay Network**
+**We are using overlay network to connect docker macine which is running different subnet**
+
+[node1] (local) root@192.168.0.26 ~
+$ docker network ls
+NETWORK ID     NAME              DRIVER    SCOPE
+f18292b20591   bridge            bridge    local
+2c5b2136e878   docker_gwbridge   bridge    local
+2c387746d074   host              host      local
+akywy8hopytt   ingress           overlay   swarm
+7c4cb13afc84   none              null      local
+
+[node1] (local) root@192.168.0.26 ~
+$ docker network create -d overlay over-net
+f0a4wmd8hlpjbhau6dc47i4u1
+
+[node1] (local) root@192.168.0.26 ~
+$ docker network ls
+NETWORK ID     NAME              DRIVER    SCOPE
+f18292b20591   bridge            bridge    local
+2c5b2136e878   docker_gwbridge   bridge    local
+2c387746d074   host              host      local
+akywy8hopytt   ingress           overlay   swarm
+7c4cb13afc84   none              null      local
+f0a4wmd8hlpj   over-net          overlay   swarm
+
+[node1] (local) root@192.168.0.26 ~
+$ docker network inspect over-net 
+[
+    {
+        "Name": "over-net",
+        "Id": "f0a4wmd8hlpjbhau6dc47i4u1",
+        "Created": "2021-01-01T11:07:32.682089039Z",
+        "Scope": "swarm",
+        "Driver": "overlay",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "10.0.1.0/24",
+                    "Gateway": "10.0.1.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": null,
+        "Options": {
+            "com.docker.network.driver.overlay.vxlanid_list": "4097"
+        },
+        "Labels": null
+    }
+]
+
+[node1] (local) root@192.168.0.26 ~
+$ docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+huiverfb1vmrbs7dnhqgercm1 *   node1      Ready     Active         Leader           20.10.0
+euh4hjtj3viei8q0m2mdvcg10     node2      Ready     Active         Reachable        20.10.0
+qd2l3ei6oe902xt3xbx0wt4s8     node3      Ready     Active         Reachable        20.10.0
+e5e97ai4swe6vtjfwj8463vu9     node4      Ready     Active                          20.10.0
+aro9s0z298b8goojjnn7dvxbn     node5      Ready     Active                          20.10.0
+
+[node1] (local) root@192.168.0.26 ~
+$ docker service create --name web --network over-net -p 8080:80 --replicas=3 ozgurozturknet/web
+w3uhwnejd1poulhw1h67buw4l
+overall progress: 3 out of 3 tasks 
+1/3: running   [==================================================>] 
+2/3: running   [==================================================>] 
+3/3: running   [==================================================>] 
+verify: Service converged 
+
+[node1] (local) root@192.168.0.26 ~
+$ docker service ls
+ID             NAME      MODE         REPLICAS   IMAGE                       PORTS
+w3uhwnejd1po   web       replicated   3/3        ozgurozturknet/web:latest   *:8080->80/tcp
+
+[node1] (local) root@192.168.0.26 ~
+$ docker service ps web
+ID             NAME      IMAGE                       NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+gef50hieox3w   web.1     ozgurozturknet/web:latest   node2     Running         Running 33 seconds ago             
+wjwv4ed94u3x   web.2     ozgurozturknet/web:latest   node3     Running         Running 33 seconds ago             
+oqbm1emghv30   web.3     ozgurozturknet/web:latest   node1     Running         Running 33 seconds ago             
+
+[node1] (local) root@192.168.0.26 ~
+$ docker service create --name db --network over-net ozgurozturknet/fakedb
+rjyi7m12otvrc2rq7ab1nip31
+overall progress: 1 out of 1 tasks 
+1/1: running   [==================================================>] 
+verify: Service converged 
+
+[node1] (local) root@192.168.0.26 ~
+$ docker service ls
+ID             NAME      MODE         REPLICAS   IMAGE                          PORTS
+rjyi7m12otvr   db        replicated   1/1        ozgurozturknet/fakedb:latest   
+w3uhwnejd1po   web       replicated   3/3        ozgurozturknet/web:latest      *:8080->80/tcp
+
+[node1] (local) root@192.168.0.26 ~
+$ docker service ps db
+ID             NAME      IMAGE                          NODE      DESIRED STATE   CURRENT STATE            ERROR     PORTS
+h9j45adv4wou   db.1      ozgurozturknet/fakedb:latest   node4     Running         Running 31 seconds ago
+
+[node4] (local) root@192.168.0.28 ~
+$ docker ps
+CONTAINER ID   IMAGE                          COMMAND                  CREATED         STATUS         PORTS              NAMES
+f5c569ea75da   ozgurozturknet/fakedb:latest   "/bin/sh -c 'nginx -…"   4 minutes ago   Up 4 minutes   80/tcp, 3306/tcp   db.1.h9j45adv4woujqup53c150ggh
+
+[node4] (local) root@192.168.0.28 ~
+$ docker container exec -it f5c569ea75da sh
+
+**Swarm provides DHPC service**
+# ping web
+PING web (10.0.1.2) 56(84) bytes of data.
+64 bytes from 10.0.1.2 (10.0.1.2): icmp_seq=1 ttl=64 time=0.206 ms
+64 bytes from 10.0.1.2 (10.0.1.2): icmp_seq=2 ttl=64 time=0.068 ms
+64 bytes from 10.0.1.2 (10.0.1.2): icmp_seq=3 ttl=64 time=0.080 ms
+64 bytes from 10.0.1.2 (10.0.1.2): icmp_seq=4 ttl=64 time=0.091 ms
+64 bytes from 10.0.1.2 (10.0.1.2): icmp_seq=5 ttl=64 time=0.111 ms
+^C
+--- web ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 4ms
+rtt min/avg/max/mdev = 0.068/0.111/0.206/0.049 ms
+
+**Swarm provides load-balancing service**
+# curl http://web
+<html>
+<body style="background-color:gray;">
+
+<center><h1 style="color:blue;">Merhaba Dunyali <p>Bu sayfa sana e957e2848414 containerindan sunuluyor</p></h1></center>
+
+</body>
+</html>
+
+# curl http://web
+<html>
+<body style="background-color:gray;">
+
+<center><h1 style="color:blue;">Merhaba Dunyali <p>Bu sayfa sana 5070c03ae760 containerindan sunuluyor</p></h1></center>
+
+
+</body>
+</html>
+
+# curl http://web
+<html>
+<body style="background-color:gray;">
+
+<center><h1 style="color:blue;">Merhaba Dunyali <p>Bu sayfa sana 907af1eaa05c containerindan sunuluyor</p></h1></center>
+
+
+</body>
+</html>
+
+_________
+
+**Docker Service Update and Roolback**
+
+[node1] (local) root@192.168.0.26 ~
+$ docker node ls
+ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+huiverfb1vmrbs7dnhqgercm1 *   node1      Ready     Active         Leader           20.10.0
+euh4hjtj3viei8q0m2mdvcg10     node2      Ready     Active         Reachable        20.10.0
+qd2l3ei6oe902xt3xbx0wt4s8     node3      Ready     Active         Reachable        20.10.0
+e5e97ai4swe6vtjfwj8463vu9     node4      Ready     Active                          20.10.0
+aro9s0z298b8goojjnn7dvxbn     node5      Ready     Active                          20.10.0
+[node1] (local) root@192.168.0.26 ~
+$ docker service create --name websrv --network 
+bridge           docker_gwbridge  host             ingress          none             over-net         
+[node1] (local) root@192.168.0.26 ~
+$ docker service create --name websrv --network over-net -p 8080:80 --replicas=10 ozgurozturknet/web:v1
+u3423gvox2cx0qwnkbns21zza
+overall progress: 10 out of 10 tasks 
+1/10: running   [==================================================>] 
+2/10: running   [==================================================>] 
+3/10: running   [==================================================>] 
+4/10: running   [==================================================>] 
+5/10: running   [==================================================>] 
+6/10: running   [==================================================>] 
+7/10: running   [==================================================>] 
+8/10: running   [==================================================>] 
+9/10: running   [==================================================>] 
+10/10: running   [==================================================>] 
+verify: Service converged 
+[node1] (local) root@192.168.0.26 ~
+$ 
+[node1] (local) root@192.168.0.26 ~
+$ docker service ls
+ID             NAME      MODE         REPLICAS   IMAGE                   PORTS
+u3423gvox2cx   websrv    replicated   10/10      ozgurozturknet/web:v1   *:8080->80/tcp
+[node1] (local) root@192.168.0.26 ~
+$ docker service ps websrv 
+ID             NAME        IMAGE                   NODE      DESIRED STATE   CURRENT STATE                ERROR     PORTS
+vr59tc3jkahm   websrv.1    ozgurozturknet/web:v1   node5     Running         Running about a minute ago             
+rewwdmpxs4xh   websrv.2    ozgurozturknet/web:v1   node4     Running         Running about a minute ago             
+ws6856r958mv   websrv.3    ozgurozturknet/web:v1   node1     Running         Running about a minute ago             
+02ecuagk1j7d   websrv.4    ozgurozturknet/web:v1   node3     Running         Running about a minute ago             
+m4zin3czgt7f   websrv.5    ozgurozturknet/web:v1   node2     Running         Running about a minute ago             
+lgg808pyxfq2   websrv.6    ozgurozturknet/web:v1   node5     Running         Running about a minute ago             
+f2h0buzz42ad   websrv.7    ozgurozturknet/web:v1   node4     Running         Running about a minute ago             
+zxm5a1bj9c8m   websrv.8    ozgurozturknet/web:v1   node2     Running         Running about a minute ago             
+rifklv63nt5m   websrv.9    ozgurozturknet/web:v1   node1     Running         Running about a minute ago             
+vik79ay0i17g   websrv.10   ozgurozturknet/web:v1   node3     Running         Running about a minute ago
 
