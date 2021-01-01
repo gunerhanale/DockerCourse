@@ -5463,3 +5463,135 @@ PS C:\AdanZyeDocker\kisim6\bolum79> docker stack ls
 NAME                SERVICES            ORCHESTRATOR
 
 _________
+
+**Section 6 Task: create a docker-compose file to run stack working for swarm**
+
+
+docker-compose.yml
+_____
+version: '3.7'
+
+services:
+   database:
+     image: mysql:5.7
+     environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD_FILE : /run/secrets/mysql_password
+     secrets:
+       - mysql_password
+     networks:
+      - wp_overlay
+
+   wordpress:
+     image: wordpress:latest
+     depends_on:
+       - database
+     environment: 
+       WORDPRESS_DB_USER: wordpress
+       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/mysql_password
+       WORDPRESS_DB_HOST: database:3306
+       WORDPRESS_DB_NAME: wordpress
+     secrets:
+       - mysql_password
+     networks:
+       - wp_overlay
+     ports:
+       - "8080:80"
+     deploy:
+       replicas: 1
+       update_config:
+        parallelism: 2
+        delay: 10s
+        order: stop-first 
+
+networks:
+  wp_overlay:
+    driver: overlay
+
+secrets:
+  mysql_password:
+    file: mysqlpass.txt
+  _________
+
+  **How to run this file by using docker stack deploy**
+
+  PS C:\AdanZyeDocker\kisim6\bolum81> ls
+
+
+    Directory: C:\AdanZyeDocker\kisim6\bolum81
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        1.01.2021     17:26            946 docker-compose.yml
+-a----        1.01.2021     17:15             11 mysqlpass.txt
+-a----        1.01.2021     16:28        1322872 Task.png
+
+
+PS C:\AdanZyeDocker\kisim6\bolum81> docker stack deploy -c .\docker-compose.yml wpstack
+Creating network wpstack_wp_overlay
+Creating secret wpstack_mysql_password
+Creating service wpstack_database
+Creating service wpstack_wordpress
+
+PS C:\AdanZyeDocker\kisim6\bolum81> docker stack ls
+NAME                SERVICES            ORCHESTRATOR
+wpstack             2                   Swarm
+
+PS C:\AdanZyeDocker\kisim6\bolum81> docker stack ps wpstack
+ID                  NAME                  IMAGE               NODE                DESIRED STATE       CURRENT STATE                ERROR               PORTS
+qhoc7uq9emt5        wpstack_wordpress.1   wordpress:latest    default             Running             Running 59 seconds ago
+pjkq7do1ongz        wpstack_database.1    mysql:5.7           default             Running             Running about a minute ago
+
+PS C:\AdanZyeDocker\kisim6\bolum81> docker ps
+CONTAINER ID        IMAGE                       COMMAND                  CREATED              STATUS                    PORTS                 NAMES
+e0dbcc59e01c        wordpress:latest            "docker-entrypoint.s"   About a minute ago   Up About a minute         80/tcp                wpstack_wordpress.1.qhoc7uq9emt5hl4mw9t0ik652
+b5311a221283        mysql:5.7                   "docker-entrypoint.s"   About a minute ago   Up About a minute         3306/tcp, 33060/tcp   wpstack_database.1.pjkq7do1ongzezrgahwts9ky3
+
+PS C:\AdanZyeDocker\kisim6\bolum81> docker service ls
+ID                  NAME                MODE                REPLICAS            IMAGE                       PORTS
+k3t8wx2o0wrn        wpstack_database    replicated          1/1                 mysql:5.7
+pfw62tnhi9sv        wpstack_wordpress   replicated          1/1                 wordpress:latest            *:8080->80/tcp
+
+PS C:\AdanZyeDocker\kisim6\bolum81> docker service logs  wpstack_wordpress
+wpstack_wordpress.1.qhoc7uq9emt5@default    | WordPress not found in /var/www/html - copying now...
+wpstack_wordpress.1.qhoc7uq9emt5@default    | Complete! WordPress has been successfully copied to /var/www/html
+wpstack_wordpress.1.qhoc7uq9emt5@default    | [01-Jan-2021 16:27:34 UTC] PHP Warning:  mysqli::__construct(): (HY000/2002): Connection refused in Standard input code on line 22
+wpstack_wordpress.1.qhoc7uq9emt5@default    |
+wpstack_wordpress.1.qhoc7uq9emt5@default    | MySQL Connection Error: (2002) Connection refused
+wpstack_wordpress.1.qhoc7uq9emt5@default    |
+wpstack_wordpress.1.qhoc7uq9emt5@default    | MySQL Connection Error: (2002) Connection refused
+wpstack_wordpress.1.qhoc7uq9emt5@default    |
+wpstack_wordpress.1.qhoc7uq9emt5@default    | MySQL Connection Error: (2002) Connection refused
+wpstack_wordpress.1.qhoc7uq9emt5@default    | AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 10.0.1.6. Set the 'ServerName' directive globally to suppress this message
+wpstack_wordpress.1.qhoc7uq9emt5@default    | AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 10.0.1.6. Set the 'ServerName' directive globally to suppress this message
+wpstack_wordpress.1.qhoc7uq9emt5@default    | [Fri Jan 01 16:27:43.936216 2021] [mpm_prefork:notice] [pid 1] AH00163: Apache/2.4.38 (Debian) PHP/7.4.13 configured -- resuming normal operations
+wpstack_wordpress.1.qhoc7uq9emt5@default    | [Fri Jan 01 16:27:43.936521 2021] [core:notice] [pid 1] AH00094: Command line: 'apache2 -D FOREGROUND'
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:40 +0000] "GET / HTTP/1.1" 302 410 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:40 +0000] "GET /wp-admin/install.php HTTP/1.1" 200 4529 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:41 +0000] "GET /wp-includes/css/buttons.min.css?ver=5.6 HTTP/1.1" 200 1789 "http://192.168.99.100:8080/wp-admin/install.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:41 +0000] "GET /wp-admin/css/forms.min.css?ver=5.6 HTTP/1.1" 200 6468 "http://192.168.99.100:8080/wp-admin/install.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:41 +0000] "GET /wp-admin/js/language-chooser.min.js?ver=5.6 HTTP/1.1" 200 618 "http://192.168.99.100:8080/wp-admin/install.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:41 +0000] "GET /wp-admin/css/l10n.min.css?ver=5.6 HTTP/1.1" 200 1022 "http://192.168.99.100:8080/wp-admin/install.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:41 +0000] "GET /wp-includes/js/jquery/jquery-migrate.min.js?ver=3.3.2 HTTP/1.1" 200 4521 "http://192.168.99.100:8080/wp-admin/install.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:41 +0000] "GET /wp-admin/css/install.min.css?ver=5.6 HTTP/1.1" 200 2124 "http://192.168.99.100:8080/wp-admin/install.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:41 +0000] "GET /wp-includes/css/dashicons.min.css?ver=5.6 HTTP/1.1" 200 36064 "http://192.168.99.100:8080/wp-admin/install.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:41 +0000] "GET /wp-includes/js/jquery/jquery.min.js?ver=3.5.1 HTTP/1.1" 200 31270 "http://192.168.99.100:8080/wp-admin/install.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:41 +0000] "GET /wp-admin/images/wordpress-logo.svg?ver=20131107 HTTP/1.1" 200 1810 "http://192.168.99.100:8080/wp-admin/css/install.min.css?ver=5.6" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:41 +0000] "GET /wp-admin/images/spinner.gif HTTP/1.1" 200 3941 "http://192.168.99.100:8080/wp-admin/css/install.min.css?ver=5.6" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:42 +0000] "GET /favicon.ico HTTP/1.1" 302 409 "http://192.168.99.100:8080/wp-admin/install.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 127.0.0.1 - - [01/Jan/2021:16:29:47 +0000] "OPTIONS * HTTP/1.0" 200 126 "-" "Apache/2.4.38 (Debian) PHP/7.4.13 (internal dummy connection)"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 127.0.0.1 - - [01/Jan/2021:16:29:48 +0000] "OPTIONS * HTTP/1.0" 200 126 "-" "Apache/2.4.38 (Debian) PHP/7.4.13 (internal dummy connection)"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:56 +0000] "POST /wp-admin/install.php?step=1 HTTP/1.1" 200 3033 "http://192.168.99.100:8080/wp-admin/install.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:58 +0000] "GET /wp-includes/js/wp-util.min.js?ver=5.6 HTTP/1.1" 200 941 "http://192.168.99.100:8080/wp-admin/install.php?step=1" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:58 +0000] "GET /wp-admin/js/password-strength-meter.min.js?ver=5.6 HTTP/1.1" 200 971 "http://192.168.99.100:8080/wp-admin/install.php?step=1" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:58 +0000] "GET /wp-includes/js/underscore.min.js?ver=1.8.3 HTTP/1.1" 200 6057 "http://192.168.99.100:8080/wp-admin/install.php?step=1" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:58 +0000] "GET /wp-admin/js/user-profile.min.js?ver=5.6 HTTP/1.1" 200 2451 "http://192.168.99.100:8080/wp-admin/install.php?step=1" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:58 +0000] "GET /wp-includes/js/zxcvbn-async.min.js?ver=1.0 HTTP/1.1" 200 607 "http://192.168.99.100:8080/wp-admin/install.php?step=1" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:58 +0000] "GET /wp-includes/js/dist/i18n.min.js?ver=326fe7fbfdb407b6edbcfba7e17f3909 HTTP/1.1" 200 4030 "http://192.168.99.100:8080/wp-admin/install.php?step=1" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:58 +0000] "GET /wp-includes/js/dist/vendor/wp-polyfill.min.js?ver=7.4.4 HTTP/1.1" 200 34595 "http://192.168.99.100:8080/wp-admin/install.php?step=1" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 10.0.0.2 - - [01/Jan/2021:16:29:59 +0000] "GET /wp-includes/js/zxcvbn.min.js HTTP/1.1" 200 400400 "http://192.168.99.100:8080/wp-admin/install.php?step=1" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
+wpstack_wordpress.1.qhoc7uq9emt5@default    | 127.0.0.1 - - [01/Jan/2021:16:30:04 +0000] "OPTIONS * HTTP/1.0" 200 126 "-" "Apache/2.4.38 (Debian) PHP/7.4.13 (internal dummy connection)"
+
